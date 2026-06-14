@@ -1,4 +1,5 @@
 #include "scanner.h"
+#include <stdio.h>
 
 typedef struct {
     char* source;
@@ -10,6 +11,15 @@ typedef struct {
 
 char advance(Scanner *scanner) {
     return scanner->source[scanner->current++];
+}
+
+char match(Scanner *scanner, char reference) {
+    if (scanner->source[scanner->current] != reference) {
+        return false;
+    }
+
+    scanner->current++;
+    return true;
 }
 
 Token* add_token(Scanner *scanner, TokenType type) {
@@ -33,6 +43,12 @@ Token* scan_token(Scanner *scanner) {
         case ';': return add_token(scanner, TOKEN_SEMICOLON);
         case '/': return add_token(scanner, TOKEN_SLASH);
         case '*': return add_token(scanner, TOKEN_STAR);
+        case '!': return add_token(scanner, match(scanner, '=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
+        case '=': return add_token(scanner, match(scanner, '=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
+        case '<': return add_token(scanner, match(scanner, '=') ? TOKEN_LESS_EQUAL : TOKEN_LESS);
+        case '>': return add_token(scanner, match(scanner, '=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER);
+        default:
+            printf("ERROR");
     }
 }
 
