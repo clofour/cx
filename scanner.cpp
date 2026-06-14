@@ -1,4 +1,4 @@
-#include "lexer.h"
+#include "scanner.h"
 
 Token* scan(char* source) {
     
