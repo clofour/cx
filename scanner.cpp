@@ -1,5 +1,7 @@
 #include "scanner.h"
 #include <stdio.h>
+#include <cstdlib>
+#include <cstring>
 
 typedef struct {
     char* source;
@@ -22,11 +24,17 @@ char match(Scanner *scanner, char reference) {
     return true;
 }
 
+char peek(Scanner *scanner) {
+    return scanner->source[scanner->current];
+}
+
 Token* add_token(Scanner *scanner, TokenType type) {
     Token token;
     token.TokenType = type;
     token.line = scanner->line;
     token.start = &(scanner->source[scanner->start]);
+
+    return &token;
 }
 
 Token* scan_token(Scanner *scanner) {
@@ -41,12 +49,34 @@ Token* scan_token(Scanner *scanner) {
         case '-': return add_token(scanner, TOKEN_MINUS);
         case '+': return add_token(scanner, TOKEN_PLUS);
         case ';': return add_token(scanner, TOKEN_SEMICOLON);
-        case '/': return add_token(scanner, TOKEN_SLASH);
+        case '/':
+            if (match(scanner, '/')) { // Comment
+                while (peek(scanner) != '\n') advance(scanner);
+            }
+            else {
+                return add_token(scanner, TOKEN_SLASH);
+            }
+            break;
         case '*': return add_token(scanner, TOKEN_STAR);
         case '!': return add_token(scanner, match(scanner, '=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
         case '=': return add_token(scanner, match(scanner, '=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
         case '<': return add_token(scanner, match(scanner, '=') ? TOKEN_LESS_EQUAL : TOKEN_LESS);
         case '>': return add_token(scanner, match(scanner, '=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER);
+        case '"':
+            while (peek(scanner) != '"') {
+                advance(scanner);
+            }
+            advance(scanner);
+
+            int length = (scanner->current - 1) - (scanner->start + 1);
+            char* value = (char*) malloc(length + 1);
+            memcpy(value, scanner-> source + scanner->start + 1, length);
+            Token* token = add_token(scanner, TOKEN_STRING);
+            token->value.string_value = value;
+            break;
+        case '\n':
+            scanner->line++;
+            break;
         default:
             printf("ERROR");
     }
