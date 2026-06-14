@@ -17,5 +17,5 @@ char* read_file(char* path) {
 }
 
 void main() {
-    printf(read_file("sample.txt"));
+    char* source = read_file("sample.txt");
 }
