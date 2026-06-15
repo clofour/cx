@@ -12,6 +12,37 @@ typedef struct {
     Token* tokens;
 } Scanner;
 
+typedef struct {
+    char* keyword;
+    TokenType type;
+} Keyword;
+
+Keyword keywords[] = {
+    { "and", TOKEN_AND },
+    { "class", TOKEN_CLASS },
+    { "else", TOKEN_ELSE },
+    { "false", TOKEN_FALSE },
+    { "for", TOKEN_FOR },
+    { "function", TOKEN_FUNCTION },
+    { "if", TOKEN_IF },
+    { "null", TOKEN_NULL },
+    { "or", TOKEN_OR },
+    { "print", TOKEN_PRINT },
+    { "return", TOKEN_RETURN },
+    { "true", TOKEN_TRUE },
+    { "var", TOKEN_VAR },
+    { "while", TOKEN_WHILE },
+};
+int keyword_count = sizeof(keywords) / sizeof(Keyword);
+
+TokenType keyword_lookup(char* keyword) {
+    for (int i = 0; i < keyword_count; i++) {
+        if (strcmp(keyword, keywords[i].keyword)) {
+            return keywords[i].type;
+        }
+    }
+}
+
 char advance(Scanner *scanner) {
     return scanner->source[scanner->current++];
 }
@@ -94,6 +125,8 @@ Token* scan_token(Scanner *scanner) {
             if (peek(scanner) == '.' && isdigit(peekNext(scanner))) advance(scanner);
 
             while (isdigit(peek(scanner))) advance(scanner);
+
+            Token* token = add_token(scanner, TOKEN_NUMBER);
             break;
         case ' ':
             break;
@@ -101,6 +134,17 @@ Token* scan_token(Scanner *scanner) {
             scanner->line++;
             break;
         default:
+            if (isalpha(character)) {
+                while (isalnum(peek(scanner))) advance(scanner);
+            }
+
+            int length = (scanner->current - 1) - (scanner->start + 1);
+            char* value = (char*) malloc(length + 1);
+            memcpy(value, scanner-> source + scanner->start + 1, length);
+            TokenType type = keyword_lookup(value);
+            if (type == NULL) type = TOKEN_IDENTIFIER;
+            Token* token = add_token(scanner, TOKEN_STRING);
+
             printf("ERROR");
     }
 }
