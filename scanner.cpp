@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <cstdlib>
 #include <cstring>
+#include "ctype.h"
 
 typedef struct {
     char* source;
@@ -26,6 +27,10 @@ char match(Scanner *scanner, char reference) {
 
 char peek(Scanner *scanner) {
     return scanner->source[scanner->current];
+}
+
+char peekNext(Scanner *scanner) {
+    return scanner->source[scanner-> current + 1];
 }
 
 Token* add_token(Scanner *scanner, TokenType type) {
@@ -73,6 +78,24 @@ Token* scan_token(Scanner *scanner) {
             memcpy(value, scanner-> source + scanner->start + 1, length);
             Token* token = add_token(scanner, TOKEN_STRING);
             token->value.string_value = value;
+            break;
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            while (isdigit(peek(scanner))) advance(scanner);
+
+            if (peek(scanner) == '.' && isdigit(peekNext(scanner))) advance(scanner);
+
+            while (isdigit(peek(scanner))) advance(scanner);
+            break;
+        case ' ':
             break;
         case '\n':
             scanner->line++;
