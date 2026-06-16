@@ -44,11 +44,19 @@ TokenType keyword_lookup(char* keyword) {
     }
 }
 
+char* substring(Scanner *scanner, int start, int end) {
+    int length = end - start;
+    char* value = (char*) malloc(length + 1);
+    memcpy(value, scanner-> source + start, length);
+
+    return value;
+}
+
 char advance(Scanner *scanner) {
     return scanner->source[scanner->current++];
 }
 
-char match(Scanner *scanner, char reference) {
+bool match(Scanner *scanner, char reference) {
     if (scanner->source[scanner->current] != reference) {
         return false;
     }
@@ -71,9 +79,9 @@ Token* add_token(Scanner *scanner, TokenType type) {
     token.line = scanner->line;
     token.start = &(scanner->source[scanner->start]);
 
-    Token heap_token = scanner->tokens[scanner->tokenCount++] = token;
+    scanner->tokens[scanner->tokenCount++] = token;
 
-    return &heap_token;
+    return &scanner->tokens[scanner->tokenCount - 1];
 }
 
 Token* scan_token(Scanner *scanner) {
@@ -107,9 +115,7 @@ Token* scan_token(Scanner *scanner) {
             }
             advance(scanner);
 
-            int length = (scanner->current - 1) - (scanner->start + 1);
-            char* value = (char*) malloc(length + 1);
-            memcpy(value, scanner-> source + scanner->start + 1, length);
+            char* value = substring(scanner, scanner->current - 1, scanner->start + 1);
             Token* token = add_token(scanner, TOKEN_STRING);
             token->value.string_value = value;
             break;
@@ -129,9 +135,7 @@ Token* scan_token(Scanner *scanner) {
 
             while (isdigit(peek(scanner))) advance(scanner);
 
-            int length = (scanner->current - 1) - (scanner->start + 1);
-            char* value = (char*) malloc(length + 1);
-            memcpy(value, scanner-> source + scanner->start + 1, length);
+            char* value = substring(scanner, scanner->start, scanner->current);
             Token* token = add_token(scanner, TOKEN_NUMBER);
             token->value.float_value = strtod(value, &value);
             break;
@@ -144,9 +148,7 @@ Token* scan_token(Scanner *scanner) {
             if (isalpha(character)) {
                 while (isalnum(peek(scanner))) advance(scanner);
 
-                int length = (scanner->current - 1) - (scanner->start + 1);
-                char* value = (char*) malloc(length + 1);
-                memcpy(value, scanner-> source + scanner->start + 1, length);
+                char* value = substring(scanner, scanner->start, scanner->current);
                 TokenType type = keyword_lookup(value);
                 if (type == NULL) type = TOKEN_IDENTIFIER;
                 Token* token = add_token(scanner, type);
