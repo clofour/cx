@@ -62,7 +62,7 @@ char peek(Scanner *scanner) {
 }
 
 char peekNext(Scanner *scanner) {
-    return scanner->source[scanner-> current + 1];
+    return scanner->source[scanner->current + 1];
 }
 
 Token* add_token(Scanner *scanner, TokenType type) {
@@ -71,9 +71,9 @@ Token* add_token(Scanner *scanner, TokenType type) {
     token.line = scanner->line;
     token.start = &(scanner->source[scanner->start]);
 
-    scanner->tokens[scanner->tokenCount++] = token;
+    Token heap_token = scanner->tokens[scanner->tokenCount++] = token;
 
-    return &token;
+    return &heap_token;
 }
 
 Token* scan_token(Scanner *scanner) {
@@ -133,7 +133,7 @@ Token* scan_token(Scanner *scanner) {
             char* value = (char*) malloc(length + 1);
             memcpy(value, scanner-> source + scanner->start + 1, length);
             Token* token = add_token(scanner, TOKEN_NUMBER);
-            token->value.float_value = strtol(value, &value, 10);
+            token->value.float_value = strtod(value, &value);
             break;
         case ' ':
             break;
@@ -149,7 +149,7 @@ Token* scan_token(Scanner *scanner) {
                 memcpy(value, scanner-> source + scanner->start + 1, length);
                 TokenType type = keyword_lookup(value);
                 if (type == NULL) type = TOKEN_IDENTIFIER;
-                Token* token = add_token(scanner, TOKEN_STRING);
+                Token* token = add_token(scanner, type);
             }
             else {
                 printf("ERROR");
