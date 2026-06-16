@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <cstring>
 #include "ctype.h"
+#include <stdbool.h>
 
 typedef struct {
     char* source;
@@ -75,13 +76,51 @@ char peekNext(Scanner *scanner) {
 
 Token* add_token(Scanner *scanner, TokenType type) {
     Token token;
-    token.TokenType = type;
+    token.type = type;
     token.line = scanner->line;
     token.start = &(scanner->source[scanner->start]);
 
     scanner->tokens[scanner->tokenCount++] = token;
 
     return &scanner->tokens[scanner->tokenCount - 1];
+}
+
+Token* number(Scanner *scanner) {
+    while (isdigit(peek(scanner))) advance(scanner);
+
+    if (peek(scanner) == '.' && isdigit(peekNext(scanner))) advance(scanner);
+
+    while (isdigit(peek(scanner))) advance(scanner);
+
+    char* value = substring(scanner, scanner->start, scanner->current);
+    Token* token = add_token(scanner, TOKEN_NUMBER);
+    token->value.float_value = strtod(value, &value);
+
+    return token;
+}
+
+Token* identifier(Scanner *scanner) {
+    while (isalnum(peek(scanner))) advance(scanner);
+
+    char* value = substring(scanner, scanner->start, scanner->current);
+    TokenType type = keyword_lookup(value);
+    if (type == NULL) type = TOKEN_IDENTIFIER;
+    Token* token = add_token(scanner, type);
+
+    return token;
+}
+
+Token* string(Scanner *scanner) {
+    while (peek(scanner) != '"') {
+        advance(scanner);
+    }
+    advance(scanner);
+
+    char* value = substring(scanner, scanner->current - 1, scanner->start + 1);
+    Token* token = add_token(scanner, TOKEN_STRING);
+    token->value.string_value = value;
+
+    return token;
 }
 
 Token* scan_token(Scanner *scanner) {
@@ -110,15 +149,7 @@ Token* scan_token(Scanner *scanner) {
         case '<': return add_token(scanner, match(scanner, '=') ? TOKEN_LESS_EQUAL : TOKEN_LESS);
         case '>': return add_token(scanner, match(scanner, '=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER);
         case '"':
-            while (peek(scanner) != '"') {
-                advance(scanner);
-            }
-            advance(scanner);
-
-            char* value = substring(scanner, scanner->current - 1, scanner->start + 1);
-            Token* token = add_token(scanner, TOKEN_STRING);
-            token->value.string_value = value;
-            break;
+            return string(scanner);
         case '0':
         case '1':
         case '2':
@@ -129,16 +160,7 @@ Token* scan_token(Scanner *scanner) {
         case '7':
         case '8':
         case '9':
-            while (isdigit(peek(scanner))) advance(scanner);
-
-            if (peek(scanner) == '.' && isdigit(peekNext(scanner))) advance(scanner);
-
-            while (isdigit(peek(scanner))) advance(scanner);
-
-            char* value = substring(scanner, scanner->start, scanner->current);
-            Token* token = add_token(scanner, TOKEN_NUMBER);
-            token->value.float_value = strtod(value, &value);
-            break;
+            return number(scanner);
         case ' ':
             break;
         case '\n':
@@ -146,12 +168,7 @@ Token* scan_token(Scanner *scanner) {
             break;
         default:
             if (isalpha(character)) {
-                while (isalnum(peek(scanner))) advance(scanner);
-
-                char* value = substring(scanner, scanner->start, scanner->current);
-                TokenType type = keyword_lookup(value);
-                if (type == NULL) type = TOKEN_IDENTIFIER;
-                Token* token = add_token(scanner, type);
+                return identifier(scanner);
             }
             else {
                 printf("ERROR");

@@ -1,7 +1,7 @@
 #ifndef SCANNER_H
 #define SCANNER_H
 
-enum TokenType
+typedef enum TokenType
 {
     TOKEN_LEFT_PARENTHESIS,
     TOKEN_RIGHT_PARENTHESIS,
@@ -44,11 +44,11 @@ enum TokenType
     TOKEN_WHILE,
 
     TOKEN_EOF
-};
+} TokenType;
 
 typedef struct
 {
-    TokenType TokenType;
+    TokenType type;
 
     char *start;
     int length;
@@ -63,6 +63,6 @@ typedef struct
     } value;
 } Token;
 
-Token *scan(char *source);
+Token *scan_source(char *source);
 
 #endif
