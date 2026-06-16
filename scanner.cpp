@@ -10,6 +10,7 @@ typedef struct {
     int start;
     int current;
     Token* tokens;
+    int tokenCount;
 } Scanner;
 
 typedef struct {
@@ -37,7 +38,7 @@ int keyword_count = sizeof(keywords) / sizeof(Keyword);
 
 TokenType keyword_lookup(char* keyword) {
     for (int i = 0; i < keyword_count; i++) {
-        if (strcmp(keyword, keywords[i].keyword)) {
+        if (strcmp(keyword, keywords[i].keyword) == 0) {
             return keywords[i].type;
         }
     }
@@ -70,7 +71,7 @@ Token* add_token(Scanner *scanner, TokenType type) {
     token.line = scanner->line;
     token.start = &(scanner->source[scanner->start]);
 
-    scanner->tokens[sizeof(scanner->tokens)] = token;
+    scanner->tokens[scanner->tokenCount++] = token;
 
     return &token;
 }
@@ -128,7 +129,11 @@ Token* scan_token(Scanner *scanner) {
 
             while (isdigit(peek(scanner))) advance(scanner);
 
+            int length = (scanner->current - 1) - (scanner->start + 1);
+            char* value = (char*) malloc(length + 1);
+            memcpy(value, scanner-> source + scanner->start + 1, length);
             Token* token = add_token(scanner, TOKEN_NUMBER);
+            token->value.float_value = strtol(value, &value, 10);
             break;
         case ' ':
             break;
@@ -155,10 +160,14 @@ Token* scan_token(Scanner *scanner) {
 Token* scan_source(char* source) {
     Scanner scanner;
     scanner.source = source;
-    scanner.start = scanner.current;
+    scanner.line = 0;
+    scanner.current = 0;
     scanner.tokens = (Token*) malloc(sizeof(Token) * 100);
 
-    scan_token(&scanner);
+    while (true) {
+        scanner.start = scanner.current;
+        scan_token(&scanner);
+    }
 
     return scanner.tokens;
 }
