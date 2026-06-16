@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <cstdlib>
+#include <stdlib.h>
 
 char* read_file(char* path) {
     FILE *file_pointer = fopen(path, "r");
