@@ -8,7 +8,7 @@ env:
   BUILD_TYPE: Release
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: windows-2025
     steps:
       - name: Check out project
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
