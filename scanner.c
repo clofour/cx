@@ -121,6 +121,7 @@ Token* identifier(Scanner *scanner) {
     TokenType type = keyword_lookup(value);
     if (type == TOKEN_NONE) type = TOKEN_IDENTIFIER;
     Token* token = add_token(scanner, type);
+    free(value);
 
     return token;
 }
@@ -200,7 +201,7 @@ Token* scan_source(Source* source) {
     Scanner scanner;
     scanner.source = source->content;
     scanner.sourceLength = source->length;
-    scanner.line = 0;
+    scanner.line =  1;
     scanner.current = 0;
     scanner.tokens = (Token*) malloc(sizeof(Token) * 10000);
     scanner.tokenCount = 0;
