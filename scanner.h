@@ -3,6 +3,8 @@
 
 typedef enum TokenType
 {
+    TOKEN_NONE,
+
     TOKEN_LEFT_PARENTHESIS,
     TOKEN_RIGHT_PARENTHESIS,
     TOKEN_LEFT_BRACE,

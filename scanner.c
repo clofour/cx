@@ -1,5 +1,5 @@
 #include "scanner.h"
-#include "ctype.h"
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,6 +7,7 @@
 
 typedef struct {
     char* source;
+    int sourceLength;
     int line;
     int start;
     int current;
@@ -43,14 +44,21 @@ TokenType keyword_lookup(char* keyword) {
             return keywords[i].type;
         }
     }
+
+    return TOKEN_NONE;
 }
 
 char* substring(Scanner *scanner, int start, int end) {
     int length = end - start;
     char* value = (char*) malloc(length + 1);
     memcpy(value, scanner-> source + start, length);
+    value[length] = '\0';
 
     return value;
+}
+
+bool isAtEnd(Scanner *scanner) {
+    return scanner->current >= scanner->sourceLength;
 }
 
 char advance(Scanner *scanner) {
@@ -58,6 +66,7 @@ char advance(Scanner *scanner) {
 }
 
 bool match(Scanner *scanner, char reference) {
+    if (isAtEnd(scanner)) return false;
     if (scanner->source[scanner->current] != reference) {
         return false;
     }
@@ -67,6 +76,7 @@ bool match(Scanner *scanner, char reference) {
 }
 
 char peek(Scanner *scanner) {
+    if (isAtEnd(scanner)) return '\0';
     return scanner->source[scanner->current];
 }
 
@@ -104,19 +114,22 @@ Token* identifier(Scanner *scanner) {
 
     char* value = substring(scanner, scanner->start, scanner->current);
     TokenType type = keyword_lookup(value);
-    if (type == NULL) type = TOKEN_IDENTIFIER;
+    if (type == TOKEN_NONE) type = TOKEN_IDENTIFIER;
     Token* token = add_token(scanner, type);
 
     return token;
 }
 
 Token* string(Scanner *scanner) {
-    while (peek(scanner) != '"') {
+    while (peek(scanner) != '"' && !isAtEnd(scanner)) {
         advance(scanner);
     }
+
+    if (isAtEnd(scanner)) printf("ERROR: Unterminated string");
+
     advance(scanner);
 
-    char* value = substring(scanner, scanner->current - 1, scanner->start + 1);
+    char* value = substring(scanner, scanner->start + 1, scanner->current - 1);
     Token* token = add_token(scanner, TOKEN_STRING);
     token->value.string_value = value;
 
@@ -137,7 +150,7 @@ Token* scan_token(Scanner *scanner) {
         case ';': return add_token(scanner, TOKEN_SEMICOLON);
         case '/':
             if (match(scanner, '/')) { // Comment
-                while (peek(scanner) != '\n') advance(scanner);
+                while (peek(scanner) != '\n' && !isAtEnd(scanner)) advance(scanner);
             }
             else {
                 return add_token(scanner, TOKEN_SLASH);
@@ -176,16 +189,19 @@ Token* scan_token(Scanner *scanner) {
     }
 }
 
-Token* scan_source(char* source) {
+Token* scan_source(char* source, int sourceLength) {
     Scanner scanner;
     scanner.source = source;
+    scanner.sourceLength = sourceLength;
     scanner.line = 0;
     scanner.current = 0;
     scanner.tokens = (Token*) malloc(sizeof(Token) * 100);
 
-    while (true) {
+    Scanner *scanner_pointer = &scanner;
+
+    while (!isAtEnd(scanner_pointer)) {
         scanner.start = scanner.current;
-        scan_token(&scanner);
+        scan_token(scanner_pointer);
     }
 
     return scanner.tokens;
