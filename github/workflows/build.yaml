@@ -1,0 +1,23 @@
+name: Build
+on:
+  push:
+    branches:
+      - main
+env:
+  BUILD_TYPE: Release
+jobs:
+  build:
+    - name: Check out project
+      uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+
+    - name: Upload build artifact
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+      with:
+        name: build
+        path: build/main.exe
