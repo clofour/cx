@@ -13,6 +13,7 @@ typedef struct {
     int start;
     int current;
     Token* tokens;
+    int tokenCapacity;
     int tokenCount;
 } Scanner;
 
@@ -203,7 +204,8 @@ Token* scan_source(Source* source) {
     scanner.sourceLength = source->length;
     scanner.line =  1;
     scanner.current = 0;
-    scanner.tokens = (Token*) malloc(sizeof(Token) * 10000);
+    scanner.tokenCapacity = 100;
+    scanner.tokens = (Token*) malloc(sizeof(Token) * scanner.tokenCapacity);
     scanner.tokenCount = 0;
 
     Scanner *scanner_pointer = &scanner;
@@ -211,6 +213,11 @@ Token* scan_source(Source* source) {
     while (!isAtEnd(scanner_pointer)) {
         scanner.start = scanner.current;
         scan_token(scanner_pointer);
+
+        if (scanner.tokenCount > scanner.tokenCapacity - 10) {
+            scanner.tokenCapacity = scanner.tokenCapacity * 2;
+            scanner.tokens = realloc(scanner.tokens, sizeof(Token) * scanner.tokenCapacity);
+        }
     }
 
     return scanner.tokens;
