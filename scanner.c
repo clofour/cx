@@ -182,6 +182,8 @@ Token* scan_token(Scanner *scanner) {
         case '9':
             return number(scanner);
         case ' ':
+        case '\r':
+        case '\t':
             break;
         case '\n':
             scanner->line++;
