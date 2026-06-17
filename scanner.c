@@ -47,7 +47,7 @@ TokenType keyword_lookup(char* keyword) {
         }
     }
 
-    return TOKEN_NONE;
+    return NULL;
 }
 
 char* substring(Scanner *scanner, int start, int end) {
@@ -120,7 +120,7 @@ Token* identifier(Scanner *scanner) {
 
     char* value = substring(scanner, scanner->start, scanner->current);
     TokenType type = keyword_lookup(value);
-    if (type == TOKEN_NONE) type = TOKEN_IDENTIFIER;
+    if (type == NULL) type = TOKEN_IDENTIFIER;
     Token* token = add_token(scanner, type);
     free(value);
 
@@ -197,7 +197,7 @@ Token* scan_token(Scanner *scanner) {
             }
     }
 
-    return TOKEN_NONE;
+    return NULL;
 }
 
 Token* scan_source(Source* source) {
@@ -221,6 +221,7 @@ Token* scan_source(Source* source) {
             scanner.tokens = realloc(scanner.tokens, sizeof(Token) * scanner.tokenCapacity);
         }
     }
+    add_token(scanner_pointer, TOKEN_EOF);
 
     return scanner.tokens;
 }
