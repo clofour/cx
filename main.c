@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "shared.h"
+#include "scanner.h"
 
-char* read_file(char* path) {
+Source* read_file(char* path) {
     FILE *file_pointer = fopen(path, "r");
 
     fseek(file_pointer, 0, SEEK_END);
@@ -13,9 +15,15 @@ char* read_file(char* path) {
 
     fclose(file_pointer);
 
-    return buffer;
+    Source* source = (Source*) malloc(sizeof(Source));
+    source->content = buffer;
+    source->length = length;
+
+    return source;
 }
 
 void main() {
-    char* source = read_file("sample.txt");
+    Source* source = read_file("sample.txt");
+    printf(source->content);
+    scan_source(source);
 }

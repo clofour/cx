@@ -1,1 +1,2 @@
-Hi!
+var value1 = 3;
+var value2 = "hello!";

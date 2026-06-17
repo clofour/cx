@@ -1,3 +1,4 @@
+#include "shared.h"
 #include "scanner.h"
 #include <ctype.h>
 #include <stdio.h>
@@ -195,13 +196,13 @@ Token* scan_token(Scanner *scanner) {
     return TOKEN_NONE;
 }
 
-Token* scan_source(char* source, int sourceLength) {
+Token* scan_source(Source* source) {
     Scanner scanner;
-    scanner.source = source;
-    scanner.sourceLength = sourceLength;
+    scanner.source = source->content;
+    scanner.sourceLength = source->length;
     scanner.line = 0;
     scanner.current = 0;
-    scanner.tokens = (Token*) malloc(sizeof(Token) * 100);
+    scanner.tokens = (Token*) malloc(sizeof(Token) * 10000);
     scanner.tokenCount = 0;
 
     Scanner *scanner_pointer = &scanner;

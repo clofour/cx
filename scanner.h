@@ -65,6 +65,6 @@ typedef struct
     } value;
 } Token;
 
-Token *scan_source(char *source);
+Token *scan_source(Source* source);
 
 #endif
