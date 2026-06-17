@@ -81,6 +81,7 @@ char peek(Scanner *scanner) {
 }
 
 char peekNext(Scanner *scanner) {
+    if (scanner->current + 1 >= scanner->sourceLength) return '\0';
     return scanner->source[scanner->current + 1];
 }
 
@@ -89,6 +90,7 @@ Token* add_token(Scanner *scanner, TokenType type) {
     token.type = type;
     token.line = scanner->line;
     token.start = &(scanner->source[scanner->start]);
+    token.length = scanner->current - scanner->start;
 
     scanner->tokens[scanner->tokenCount++] = token;
 
@@ -102,9 +104,11 @@ Token* number(Scanner *scanner) {
 
     while (isdigit(peek(scanner))) advance(scanner);
 
-    char* value = substring(scanner, scanner->start, scanner->current);
+    char* stringValue = substring(scanner, scanner->start, scanner->current);
+    char* numberValue;
     Token* token = add_token(scanner, TOKEN_NUMBER);
-    token->value.float_value = strtod(value, &value);
+    token->value.float_value = strtod(stringValue, &numberValue);
+    free(stringValue);
 
     return token;
 }
@@ -121,13 +125,13 @@ Token* identifier(Scanner *scanner) {
 }
 
 Token* string(Scanner *scanner) {
-    while (peek(scanner) != '"' && !isAtEnd(scanner)) {
+    while (peek(scanner) != '"' && peek(scanner) != '\n' && !isAtEnd(scanner)) {
         advance(scanner);
     }
 
-    if (isAtEnd(scanner)) printf("ERROR: Unterminated string");
-
-    advance(scanner);
+    if (isAtEnd(scanner) || !match(scanner, '"')) {
+        printf("ERROR: Unterminated string");
+    }
 
     char* value = substring(scanner, scanner->start + 1, scanner->current - 1);
     Token* token = add_token(scanner, TOKEN_STRING);
@@ -187,6 +191,8 @@ Token* scan_token(Scanner *scanner) {
                 printf("ERROR");
             }
     }
+
+    return TOKEN_NONE;
 }
 
 Token* scan_source(char* source, int sourceLength) {
@@ -196,6 +202,7 @@ Token* scan_source(char* source, int sourceLength) {
     scanner.line = 0;
     scanner.current = 0;
     scanner.tokens = (Token*) malloc(sizeof(Token) * 100);
+    scanner.tokenCount = 0;
 
     Scanner *scanner_pointer = &scanner;
 
