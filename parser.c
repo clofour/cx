@@ -32,8 +32,13 @@ bool is_at_end(Parser* parser) {
     return next->type == TOKEN_EOF;
 }
 
-void* advance(Parser* parser) {
+Token* previous(Parser* parser) {
+    return parser->tokens[parser->current - 1];
+}
 
+Token* advance(Parser* parser) {
+    if (is_at_end(parser)) parser->current++;
+    return previous(parser);
 }
 
 Token* peek(Parser* parser) {
