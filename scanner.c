@@ -47,7 +47,7 @@ TokenType keyword_lookup(char* keyword) {
         }
     }
 
-    return NULL;
+    return TOKEN_NONE;
 }
 
 char* substring(Scanner *scanner, int start, int end) {
@@ -120,7 +120,7 @@ Token* identifier(Scanner *scanner) {
 
     char* value = substring(scanner, scanner->start, scanner->current);
     TokenType type = keyword_lookup(value);
-    if (type == NULL) type = TOKEN_IDENTIFIER;
+    if (type == TOKEN_NONE) type = TOKEN_IDENTIFIER;
     Token* token = add_token(scanner, type);
     free(value);
 
