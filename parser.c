@@ -8,12 +8,38 @@ typedef struct {
     Token* tokens;
     Expr* expressions;
     int expressionsLength;
+    int expressionsCapacity;
 } Parser;
 
 Expr* create_expr(Parser* parser) {
     Expr expr = {0};
     parser->expressions[parser->expressionsLength++] = expr;
     return &parser->expressions[parser->expressionsLength - 1];
+}
+
+Expr* create_primary_expr(Parser* parser, Token* value) {
+    Expr* expr = create_expr(parser);
+
+    expr->type = EXPR_PRIMARY;
+    PrimaryExpr* primaryExpr = expr->value.primary;
+    primaryExpr->value = value;
+
+    expr->value.primary = primaryExpr;
+
+    return expr;
+}
+
+Expr* create_unary_expr(Parser* parser, Token* operator, Expr* expr) {
+    Expr* expr = create_expr(parser);
+
+    expr->type = EXPR_UNARY;
+    UnaryExpr* unaryExpr = expr->value.unary;
+    unaryExpr->operator = operator;
+    unaryExpr->expr = expr;
+
+    expr->value.binary = unaryExpr;
+
+    return expr;
 }
 
 Expr* create_binary_expr(Parser* parser, Expr* leftExpr, Token* operator, Expr* rightExpr) {
@@ -72,8 +98,66 @@ bool match(Parser* parser, int count, ...) {
     return false;
 }
 
+Token* consume(Parser* parser, TokenType type, char* message) {
+    if (check(parser, type)) return advance(parser);
+
+    printf(message);
+}
+
+Expr* primary(Parser* parser) {
+    if (match(parser, 5, TOKEN_FALSE, TOKEN_TRUE, TOKEN_NULL, TOKEN_NUMBER, TOKEN_STRING)) {
+        return create_primary_expr(parser, previous(parser));
+    }
+
+    if (match(parser, 1, TOKEN_LEFT_PARENTHESIS)) {
+        Expr* expr = expression(parser);
+    }
+}
+
+Expr* unary(Parser* parser) {
+    if (match(parser, 2, TOKEN_BANG, TOKEN_MINUS)) {
+        Token* operator = previous(parser);
+        Expr* expr = unary(parser);
+        return create_unary_expr(parser, operator, expr);
+    }
+
+    return primary(parser);
+}
+
+Expr* factor(Parser* parser) {
+    Expr* expr = unary(parser);
+
+    while (match(parser, 2, TOKEN_SLASH, TOKEN_STAR)) {
+        Token* operator = previous(parser);
+        Expr* right = unary(parser);
+        expr = create_binary_expr(parser, expr, operator, right);
+    }
+
+    return expr;
+}
+
+Expr* term(Parser* parser) {
+    Expr* expr = factor(parser);
+
+    while (match(parser, 2, TOKEN_MINUS, TOKEN_PLUS)) {
+        Token* operator = previous(parser);
+        Expr* right = factor(parser);
+        expr = create_binary_expr(parser, expr, operator, right);
+    }
+
+    return expr;
+}
+
 Expr* comparison(Parser* parser) {
-    Expr* expr = term();
+    Expr* expr = term(parser);
+
+    while (match(parser, 4, TOKEN_GREATER, TOKEN_GREATER_EQUAL, TOKEN_LESS, TOKEN_LESS_EQUAL)) {
+        Token* operator = previous(parser);
+        Expr* right = term(parser);
+        expr = create_binary_expr(parser, expr, operator, right);
+    }
+
+    return expr;
 }
 
 Expr* equality(Parser* parser) {
@@ -90,4 +174,15 @@ Expr* equality(Parser* parser) {
 
 Expr* expression(Parser* parser) {
     return equality(parser);
+}
+
+Expr* parse_tokens(Token* tokens) {
+    Parser parser;
+    parser.current = 0;
+    parser.tokens = tokens;
+    parser.expressionsCapacity = 100;
+    parser.expressions = (Token*) malloc(sizeof(Expr) * parser.expressionsCapacity);
+    parser.expressionsLength = 0;
+
+    expression(&parser);
 }
