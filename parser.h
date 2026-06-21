@@ -1,7 +1,7 @@
-#include "scanner.h"
-
 #ifndef PARSER_H
 #define PARSER_H
+
+#include "scanner.h"
 
 typedef enum {
     EXPR_BINARY,
@@ -34,6 +34,38 @@ struct Expr {
         PrimaryExpr primary; 
     } value;
 };
+
+typedef enum {
+    STMT_VAR,
+    STMT_EXPR,
+    STMT_PRINT
+} StmtType;
+
+typedef struct {
+    Token* name;
+    Expr* expr;
+} StmtVar;
+
+typedef struct {
+    Expr* expr;
+} StmtExpr;
+
+typedef struct {
+    Expr* expr;
+} StmtPrint;
+
+typedef struct {
+    StmtType type;
+    union {
+        StmtVar var;
+        StmtExpr expr;
+        StmtPrint print;
+    } value;
+} Stmt;
+
+typedef struct {
+    int hello;
+} Decl;
 
 Expr* parse(Token* tokens);
 

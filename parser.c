@@ -10,7 +10,30 @@ typedef struct {
     Expr* expressions;
     int expressionsLength;
     int expressionsCapacity;
+    Stmt* statements;
+    int statementsLength;
+    int statementsCapacity;
 } Parser;
+
+static Stmt* create_stmt(Parser* parser) {
+    Stmt stmt;
+
+    parser->statements[parser->statementsLength++] = stmt;
+    return &parser->statements[parser->statementsLength - 1];
+}
+
+static Stmt* create_stmt_var(Parser* parser, Token* name, Expr* expr) {
+    Stmt* stmt = create_stmt(parser);
+    
+    stmt->type = STMT_VAR;
+
+    StmtVar stmtVar;
+    stmtVar.name = name;
+    stmtVar.expr = expr;
+    stmt->value.var = stmtVar;
+
+    return stmt;
+}
 
 static Expr* create_expr(Parser* parser) {
     Expr expr = {0};
@@ -115,7 +138,7 @@ static Expr* unary(Parser* parser);
 static Expr* primary(Parser* parser);
 
 static Expr* primary(Parser* parser) {
-    if (match(parser, 5, TOKEN_FALSE, TOKEN_TRUE, TOKEN_NULL, TOKEN_NUMBER, TOKEN_STRING)) {
+    if (match(parser, 6, TOKEN_FALSE, TOKEN_TRUE, TOKEN_NULL, TOKEN_NUMBER, TOKEN_STRING, TOKEN_IDENTIFIER)) {
         return create_primary_expr(parser, previous(parser));
     }
 
@@ -189,6 +212,50 @@ static Expr* expression(Parser* parser) {
     return equality(parser);
 }
 
+static Stmt* expr_statement(Parser* parser) {
+    Expr* expr = expression(parser);
+    consume(parser, TOKEN_SEMICOLON, "Lines must be terminated with semicolons.");
+    create_stmt(parser, STMT_EXPR, expr);
+}
+
+static Stmt* print_statement(Parser* parser) {
+    Expr* value = expression(parser);
+    consume(parser, TOKEN_SEMICOLON, "Lines must be terminated with semicolons.");
+    create_stmt(parser, STMT_PRINT, value);
+}
+
+static Stmt* statement(Parser* parser) {
+    if (match(parser, 1, TOKEN_PRINT)) return print_statement(parser);
+
+    return expr_statement(parser);
+}
+
+static Stmt* var_declaration(Parser* parser) {
+    Token* name = consume(parser, TOKEN_IDENTIFIER, "Variable name was expected.");
+
+    Expr* initializer = NULL;
+    if (match(parser, 1, TOKEN_EQUAL)) {
+        initializer = expression(parser);
+    }
+
+    consume(parser, TOKEN_SEMICOLON, "Lines must be terminated with semicolons.");
+    return create_stmt_var(parser, name, initializer);
+}
+
+static Decl* declaration(Parser* parser) {
+    if (match(parser, 1, TOKEN_VAR)) return var_declaration(parser);
+
+    return statement(parser);
+}
+
+static Stmt* program(Parser* parser) {
+    while (!is_at_end(parser)) {
+        declaration(parser);
+    }
+    
+    return NULL;
+}
+
 Expr* parse(Token* tokens) {
     Parser parser;
     parser.current = 0;
@@ -196,6 +263,9 @@ Expr* parse(Token* tokens) {
     parser.expressionsCapacity = 100;
     parser.expressions = (Expr*) malloc(sizeof(Expr) * parser.expressionsCapacity);
     parser.expressionsLength = 0;
+    parser.statementsCapacity = 100;
+    parser.statements = (Stmt*) malloc(sizeof(Stmt) * parser.statementsCapacity);
+    parser.statementsLength = 0;
 
     Expr* expressions = expression(&parser);
     return expressions;
