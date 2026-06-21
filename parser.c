@@ -1,6 +1,7 @@
 #include "parser.h"
 #include "scanner.h"
 #include <stdbool.h>
+#include <stdlib.h>
 #include <stdarg.h>
 
 typedef struct {
@@ -29,15 +30,15 @@ Expr* create_primary_expr(Parser* parser, Token* value) {
     return expr;
 }
 
-Expr* create_unary_expr(Parser* parser, Token* operator, Expr* expr) {
+Expr* create_unary_expr(Parser* parser, Token* operator, Expr* expression) {
     Expr* expr = create_expr(parser);
 
     expr->type = EXPR_UNARY;
     UnaryExpr* unaryExpr = expr->value.unary;
     unaryExpr->operator = operator;
-    unaryExpr->expr = expr;
+    unaryExpr->expr = expression;
 
-    expr->value.binary = unaryExpr;
+    expr->value.unary = unaryExpr;
 
     return expr;
 }
@@ -102,7 +103,16 @@ Token* consume(Parser* parser, TokenType type, char* message) {
     if (check(parser, type)) return advance(parser);
 
     printf(message);
+    return NULL;
 }
+
+Expr* expression(Parser* parser);
+Expr* equality(Parser* parser);
+Expr* comparison(Parser* parser);
+Expr* term(Parser* parser);
+Expr* factor(Parser* parser);
+Expr* unary(Parser* parser);
+Expr* primary(Parser* parser);
 
 Expr* primary(Parser* parser) {
     if (match(parser, 5, TOKEN_FALSE, TOKEN_TRUE, TOKEN_NULL, TOKEN_NUMBER, TOKEN_STRING)) {
@@ -112,6 +122,9 @@ Expr* primary(Parser* parser) {
     if (match(parser, 1, TOKEN_LEFT_PARENTHESIS)) {
         Expr* expr = expression(parser);
     }
+
+    printf("Expected expression.");
+    return NULL;
 }
 
 Expr* unary(Parser* parser) {
@@ -181,8 +194,8 @@ Expr* parse_tokens(Token* tokens) {
     parser.current = 0;
     parser.tokens = tokens;
     parser.expressionsCapacity = 100;
-    parser.expressions = (Token*) malloc(sizeof(Expr) * parser.expressionsCapacity);
+    parser.expressions = (Expr*) malloc(sizeof(Expr) * parser.expressionsCapacity);
     parser.expressionsLength = 0;
 
-    expression(&parser);
+    return expression(&parser);
 }
