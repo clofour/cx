@@ -7,6 +7,6 @@ typedef struct {
     int depth;
 } Printer;
 
-void print(Expr* expr);
+void print(Stmt* statements);
 
 #endif

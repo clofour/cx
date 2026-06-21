@@ -16,8 +16,18 @@ static char* keyword_lookup(TokenType type) {
     return TOKEN_NONE;
 }
 
-int print_token(Printer* printer, Token* token) {
+void print_offset(Printer* printer) {
     printf("%*s| ", printer->depth, "");
+}
+
+void print_string(Printer* printer, char* string) {
+    print_offset(printer);
+    printf(string);
+    printf("\n");
+}
+
+void print_token(Printer* printer, Token* token) {
+    print_offset(printer);
 
     TokenType type = token->type;
     switch (type) {
@@ -32,10 +42,10 @@ int print_token(Printer* printer, Token* token) {
         default: printf(keyword_lookup(type)); break;
     }
 
-    printf("\n");
+   printf("\n");
 }
 
-void print_node(Printer* printer, Expr* expr_pointer) {
+void print_expr(Printer* printer, Expr* expr_pointer) {
     Expr expr = *expr_pointer;
 
     switch (expr.type) {
@@ -45,8 +55,8 @@ void print_node(Printer* printer, Expr* expr_pointer) {
             print_token(printer, expr.value.binary.operator);
             printer->depth++;
 
-            print_node(printer, binaryExpr.leftExpr);
-            print_node(printer, binaryExpr.rightExpr);
+            print_expr(printer, binaryExpr.leftExpr);
+            print_expr(printer, binaryExpr.rightExpr);
 
             return;
 
@@ -56,7 +66,7 @@ void print_node(Printer* printer, Expr* expr_pointer) {
             print_token(printer, unaryExpr.operator);
             printer->depth++;
 
-            print_node(printer, unaryExpr.expr);
+            print_expr(printer, unaryExpr.expr);
             return;
 
         case EXPR_PRIMARY:
@@ -67,8 +77,42 @@ void print_node(Printer* printer, Expr* expr_pointer) {
     }
 }
 
-void print(Expr* expr) {
+void print_stmt(Printer* printer, Stmt* stmt_pointer) {
+    Stmt stmt = *stmt_pointer;
+
+    switch(stmt.type) {
+        case STMT_EXPR:
+            StmtExpr stmtExpr = stmt.value.expr;
+            print_expr(printer, stmtExpr.expr);
+
+            break;
+
+        case STMT_PRINT:
+            StmtPrint stmtPrint = stmt.value.print;
+
+            print_string(printer, "print");
+
+            print_expr(printer, stmtPrint.expr);
+
+            break;
+
+        case STMT_VAR:
+            StmtVar stmtVar = stmt.value.var;
+
+            print_token(printer, stmtVar.name);
+            printer->depth++;
+
+            print_expr(printer, stmtVar.expr);
+
+            break;
+    }
+}
+
+void print(Stmt* statements) {
     Printer* printer = (Printer*) malloc(sizeof(Printer));
     printer->depth = 0;
-    print_node(printer, expr);
+
+    for (int i = 0; i < 1; i++) {
+        print_stmt(printer, &statements[i]);
+    }
 }
