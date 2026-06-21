@@ -4,17 +4,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-typedef struct {
-    int current;
-    Token* tokens;
-    Expr* expressions;
-    int expressionsLength;
-    int expressionsCapacity;
-    Stmt* statements;
-    int statementsLength;
-    int statementsCapacity;
-} Parser;
-
 static Stmt* create_stmt(Parser* parser) {
     Stmt stmt = {0};
 
@@ -326,7 +315,7 @@ static void program(Parser* parser) {
     }
 }
 
-Stmt* parse(Token* tokens) {
+AST parse(Token* tokens) {
     Parser parser;
     parser.current = 0;
     parser.tokens = tokens;
@@ -338,5 +327,9 @@ Stmt* parse(Token* tokens) {
     parser.statementsLength = 0;
 
     program(&parser);
-    return parser.statements;
+
+    AST ast;
+    ast.statements = parser.statements;
+    ast.length = parser.statementsLength;
+    return ast;
 }

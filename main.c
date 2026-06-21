@@ -32,8 +32,8 @@ void main() {
 
     Token* tokens = scan(source);
 
-    Stmt* statements = parse(tokens);
+    AST ast = parse(tokens);
 
     printf("AST:\n");
-    print(statements);
+    print(ast);
 }

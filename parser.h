@@ -76,6 +76,22 @@ typedef struct {
     } value;
 } Stmt;
 
-Stmt* parse(Token* tokens);
+typedef struct {
+    int current;
+    Token* tokens;
+    Expr* expressions;
+    int expressionsLength;
+    int expressionsCapacity;
+    Stmt* statements;
+    int statementsLength;
+    int statementsCapacity;
+} Parser;
+
+typedef struct {
+    Stmt* statements;
+    int length;
+} AST;
+
+AST parse(Token* tokens);
 
 #endif

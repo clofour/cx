@@ -123,8 +123,8 @@ void print_stmt(int depth, Stmt* stmt_pointer) {
     }
 }
 
-void print(Stmt* statements) {
-    for (int i = 0; i < 2; i++) {
-        print_stmt(0, &statements[i]);
+void print(AST ast) {
+    for (int i = 0; i < ast.length; i++) {
+        print_stmt(0, &ast.statements[i]);
     }
 }
