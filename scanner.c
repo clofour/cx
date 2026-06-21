@@ -6,22 +6,6 @@
 #include <string.h>
 #include <stdbool.h>
 
-typedef struct {
-    char* source;
-    int sourceLength;
-    int line;
-    int start;
-    int current;
-    Token* tokens;
-    int tokenCapacity;
-    int tokenCount;
-} Scanner;
-
-typedef struct {
-    char* keyword;
-    TokenType type;
-} Keyword;
-
 Keyword keywords[] = {
     { "and", TOKEN_AND },
     { "class", TOKEN_CLASS },

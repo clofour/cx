@@ -50,6 +50,11 @@ typedef enum TokenType
     TOKEN_EOF
 } TokenType;
 
+typedef struct {
+    char* keyword;
+    TokenType type;
+} Keyword;
+
 typedef struct
 {
     TokenType type;
@@ -66,6 +71,17 @@ typedef struct
         char *string_value;
     } value;
 } Token;
+
+typedef struct {
+    char* source;
+    int sourceLength;
+    int line;
+    int start;
+    int current;
+    Token* tokens;
+    int tokenCapacity;
+    int tokenCount;
+} Scanner;
 
 Token *scan_source(Source* source);
 
