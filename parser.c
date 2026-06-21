@@ -271,7 +271,7 @@ static Expr* assignment(Parser* parser) {
         if (expr->type == EXPR_VAR) {
             VarExpr varExpr = expr->value.var;
             Token* name = varExpr.name;
-            return create_var_expr(parser, name);
+            return create_assign_expr(parser, name, value);
         }
 
         printf("ERROR: Invalid assignment target.");
