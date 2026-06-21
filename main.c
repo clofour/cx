@@ -28,6 +28,7 @@ void main() {
     Source* source = read_file("samples/expr.cx");
     printf("Source:\n");
     printf(source->content);
+    printf("\n");
 
     Token* tokens = scan(source);
 
