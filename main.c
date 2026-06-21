@@ -25,15 +25,15 @@ Source* read_file(char* path) {
 }
 
 void main() {
-    Source* source = read_file("samples/expr.cx");
+    Source* source = read_file("samples/vars.cx");
     printf("Source:\n");
     printf(source->content);
     printf("\n");
 
     Token* tokens = scan(source);
 
-    Expr* expressions = parse(tokens);
+    Stmt* statements = parse(tokens);
 
     printf("AST:\n");
-    print(expressions);
+    print(statements);
 }
