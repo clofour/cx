@@ -22,6 +22,30 @@ static Stmt* create_stmt(Parser* parser) {
     return &parser->statements[parser->statementsLength - 1];
 }
 
+static Stmt* create_stmt_expr(Parser* parser, Expr* expr) {
+    Stmt* stmt = create_stmt(parser);
+    
+    stmt->type = STMT_EXPR;
+
+    StmtExpr stmtExpr;
+    stmtExpr.expr = expr;
+    stmt->value.expr = stmtExpr;
+
+    return stmt;
+}
+
+static Stmt* create_stmt_print(Parser* parser, Expr* expr) {
+    Stmt* stmt = create_stmt(parser);
+    
+    stmt->type = STMT_PRINT;
+
+    StmtPrint stmtPrint;
+    stmtPrint.expr = expr;
+    stmt->value.print = stmtPrint;
+
+    return stmt;
+}
+
 static Stmt* create_stmt_var(Parser* parser, Token* name, Expr* expr) {
     Stmt* stmt = create_stmt(parser);
     
@@ -41,6 +65,18 @@ static Expr* create_expr(Parser* parser) {
     return &parser->expressions[parser->expressionsLength - 1];
 }
 
+static Expr* create_var_expr(Parser* parser, Token* name) {
+    Expr* expr = create_expr(parser);
+
+    expr->type = EXPR_VAR;
+
+    VarExpr varExpr;
+    varExpr.name = name;
+    expr->value.var = varExpr;
+
+    return expr;
+}
+
 static Expr* create_primary_expr(Parser* parser, Token* value) {
     Expr* expr = create_expr(parser);
 
@@ -49,6 +85,19 @@ static Expr* create_primary_expr(Parser* parser, Token* value) {
     PrimaryExpr primaryExpr;
     primaryExpr.value = value;
     expr->value.primary = primaryExpr;
+
+    return expr;
+}
+
+static Expr* create_assign_expr(Parser* parser, Token* name, Expr* value) {
+    Expr* expr = create_expr(parser);
+
+    expr->type = EXPR_ASSIGN;
+
+    AssignExpr assignExpr;
+    assignExpr.name = name;
+    assignExpr.value = value;
+    expr->value.assign = assignExpr;
 
     return expr;
 }
@@ -138,8 +187,12 @@ static Expr* unary(Parser* parser);
 static Expr* primary(Parser* parser);
 
 static Expr* primary(Parser* parser) {
-    if (match(parser, 6, TOKEN_FALSE, TOKEN_TRUE, TOKEN_NULL, TOKEN_NUMBER, TOKEN_STRING, TOKEN_IDENTIFIER)) {
+    if (match(parser, 6, TOKEN_FALSE, TOKEN_TRUE, TOKEN_NULL, TOKEN_NUMBER, TOKEN_STRING)) {
         return create_primary_expr(parser, previous(parser));
+    }
+
+    if (match(parser, 1, TOKEN_IDENTIFIER)) {
+        return create_var_expr(parser, previous(parser));
     }
 
     if (match(parser, 1, TOKEN_LEFT_PARENTHESIS)) {
@@ -208,20 +261,39 @@ static Expr* equality(Parser* parser) {
     return expr;
 }
 
+static Expr* assignment(Parser* parser) {
+    Expr* expr = equality(parser);
+
+    if (match(parser, 1, TOKEN_EQUAL)) {
+        Token* equalSign = previous(parser);
+        Expr* value = assignment(parser);
+
+        if (expr->type == EXPR_VAR) {
+            VarExpr varExpr = expr->value.var;
+            Token* name = varExpr.name;
+            return create_var_expr(parser, name);
+        }
+
+        printf("ERROR: Invalid assignment target.");
+    }
+
+    return expr;
+}
+
 static Expr* expression(Parser* parser) {
-    return equality(parser);
+    return assignment(parser);
 }
 
 static Stmt* expr_statement(Parser* parser) {
     Expr* expr = expression(parser);
     consume(parser, TOKEN_SEMICOLON, "Lines must be terminated with semicolons.");
-    create_stmt(parser, STMT_EXPR, expr);
+    return create_stmt_expr(parser, expr);
 }
 
 static Stmt* print_statement(Parser* parser) {
     Expr* value = expression(parser);
     consume(parser, TOKEN_SEMICOLON, "Lines must be terminated with semicolons.");
-    create_stmt(parser, STMT_PRINT, value);
+    create_stmt_value(parser, STMT_PRINT, value);
 }
 
 static Stmt* statement(Parser* parser) {
@@ -242,7 +314,7 @@ static Stmt* var_declaration(Parser* parser) {
     return create_stmt_var(parser, name, initializer);
 }
 
-static Decl* declaration(Parser* parser) {
+static Stmt* declaration(Parser* parser) {
     if (match(parser, 1, TOKEN_VAR)) return var_declaration(parser);
 
     return statement(parser);

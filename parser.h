@@ -6,7 +6,9 @@
 typedef enum {
     EXPR_BINARY,
     EXPR_UNARY,
-    EXPR_PRIMARY
+    EXPR_ASSIGN,
+    EXPR_PRIMARY,
+    EXPR_VAR
 } ExprType;
 
 typedef struct Expr Expr;
@@ -23,15 +25,26 @@ typedef struct {
 } UnaryExpr;
 
 typedef struct {
+    Token* name;
+    Expr* value;
+} AssignExpr;
+
+typedef struct {
     Token* value;
 } PrimaryExpr;
+
+typedef struct {
+    Token* name;
+} VarExpr;
 
 struct Expr {
     ExprType type;
     union {
         BinaryExpr binary;
         UnaryExpr unary;
-        PrimaryExpr primary; 
+        PrimaryExpr primary;
+        VarExpr var;
+        AssignExpr assign;
     } value;
 };
 
@@ -62,10 +75,6 @@ typedef struct {
         StmtPrint print;
     } value;
 } Stmt;
-
-typedef struct {
-    int hello;
-} Decl;
 
 Expr* parse(Token* tokens);
 
