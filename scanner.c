@@ -59,7 +59,7 @@ char* substring(Scanner *scanner, int start, int end) {
     return value;
 }
 
-bool isAtEnd(Scanner *scanner) {
+bool is_at_end(Scanner *scanner) {
     return scanner->current >= scanner->sourceLength;
 }
 
@@ -68,7 +68,7 @@ char advance(Scanner *scanner) {
 }
 
 bool match(Scanner *scanner, char reference) {
-    if (isAtEnd(scanner)) return false;
+    if (is_at_end(scanner)) return false;
     if (scanner->source[scanner->current] != reference) {
         return false;
     }
@@ -78,11 +78,11 @@ bool match(Scanner *scanner, char reference) {
 }
 
 char peek(Scanner *scanner) {
-    if (isAtEnd(scanner)) return '\0';
+    if (is_at_end(scanner)) return '\0';
     return scanner->source[scanner->current];
 }
 
-char peekNext(Scanner *scanner) {
+char peek_next(Scanner *scanner) {
     if (scanner->current + 1 >= scanner->sourceLength) return '\0';
     return scanner->source[scanner->current + 1];
 }
@@ -102,7 +102,7 @@ Token* add_token(Scanner *scanner, TokenType type) {
 Token* number(Scanner *scanner) {
     while (isdigit(peek(scanner))) advance(scanner);
 
-    if (peek(scanner) == '.' && isdigit(peekNext(scanner))) advance(scanner);
+    if (peek(scanner) == '.' && isdigit(peek_next(scanner))) advance(scanner);
 
     while (isdigit(peek(scanner))) advance(scanner);
 
@@ -128,11 +128,11 @@ Token* identifier(Scanner *scanner) {
 }
 
 Token* string(Scanner *scanner) {
-    while (peek(scanner) != '"' && peek(scanner) != '\n' && !isAtEnd(scanner)) {
+    while (peek(scanner) != '"' && peek(scanner) != '\n' && !is_at_end(scanner)) {
         advance(scanner);
     }
 
-    if (isAtEnd(scanner) || !match(scanner, '"')) {
+    if (is_at_end(scanner) || !match(scanner, '"')) {
         printf("ERROR: Unterminated string");
     }
 
@@ -157,7 +157,7 @@ Token* scan_token(Scanner *scanner) {
         case ';': return add_token(scanner, TOKEN_SEMICOLON);
         case '/':
             if (match(scanner, '/')) { // Comment
-                while (peek(scanner) != '\n' && !isAtEnd(scanner)) advance(scanner);
+                while (peek(scanner) != '\n' && !is_at_end(scanner)) advance(scanner);
             }
             else {
                 return add_token(scanner, TOKEN_SLASH);
@@ -212,7 +212,7 @@ Token* scan_source(Source* source) {
 
     Scanner *scanner_pointer = &scanner;
 
-    while (!isAtEnd(scanner_pointer)) {
+    while (!is_at_end(scanner_pointer)) {
         scanner.start = scanner.current;
         scan_token(scanner_pointer);
 
