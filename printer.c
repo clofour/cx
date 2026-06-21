@@ -26,14 +26,18 @@ void print_string(Printer* printer, char* string) {
     printf("\n");
 }
 
+void print_token_literal(Printer* printer, Token* token) {
+    printf("%.*s", token->length, token->start);
+}
+
 void print_token(Printer* printer, Token* token) {
     print_offset(printer);
 
     TokenType type = token->type;
     switch (type) {
-        case TOKEN_IDENTIFIER: printf(token->value.string_value); break;
-        case TOKEN_STRING: printf(token->value.string_value); break;
-        case TOKEN_NUMBER: printf("%f", token->value.float_value); break;
+        case TOKEN_IDENTIFIER: print_token_literal(printer, token); break;
+        case TOKEN_STRING: print_token_literal(printer, token); break;
+        case TOKEN_NUMBER: print_token_literal(printer, token); break;
         case TOKEN_PLUS: printf("+"); break;
         case TOKEN_MINUS: printf("-"); break;
         case TOKEN_SLASH: printf("/"); break;
@@ -49,10 +53,27 @@ void print_expr(Printer* printer, Expr* expr_pointer) {
     Expr expr = *expr_pointer;
 
     switch (expr.type) {
+        case EXPR_VAR:
+            VarExpr varExpr = expr.value.var;
+
+            print_token(printer, varExpr.name);
+
+            return;
+
+        case EXPR_ASSIGN:
+            AssignExpr assignExpr = expr.value.assign;
+
+            print_token(printer, assignExpr.name);
+            printer->depth++;
+
+            print_expr(printer, assignExpr.value);
+
+            return;
+
         case EXPR_BINARY:
             BinaryExpr binaryExpr = expr.value.binary;
 
-            print_token(printer, expr.value.binary.operator);
+            print_token(printer, binaryExpr.operator);
             printer->depth++;
 
             print_expr(printer, binaryExpr.leftExpr);
