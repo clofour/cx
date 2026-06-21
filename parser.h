@@ -76,6 +76,6 @@ typedef struct {
     } value;
 } Stmt;
 
-Expr* parse(Token* tokens);
+Stmt* parse(Token* tokens);
 
 #endif

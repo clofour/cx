@@ -16,7 +16,7 @@ typedef struct {
 } Parser;
 
 static Stmt* create_stmt(Parser* parser) {
-    Stmt stmt;
+    Stmt stmt = {0};
 
     parser->statements[parser->statementsLength++] = stmt;
     return &parser->statements[parser->statementsLength - 1];
@@ -293,7 +293,7 @@ static Stmt* expr_statement(Parser* parser) {
 static Stmt* print_statement(Parser* parser) {
     Expr* value = expression(parser);
     consume(parser, TOKEN_SEMICOLON, "Lines must be terminated with semicolons.");
-    create_stmt_value(parser, STMT_PRINT, value);
+    return create_stmt_print(parser, value);
 }
 
 static Stmt* statement(Parser* parser) {
@@ -328,7 +328,7 @@ static Stmt* program(Parser* parser) {
     return NULL;
 }
 
-Expr* parse(Token* tokens) {
+Stmt* parse(Token* tokens) {
     Parser parser;
     parser.current = 0;
     parser.tokens = tokens;
@@ -339,6 +339,6 @@ Expr* parse(Token* tokens) {
     parser.statements = (Stmt*) malloc(sizeof(Stmt) * parser.statementsCapacity);
     parser.statementsLength = 0;
 
-    Expr* expressions = expression(&parser);
-    return expressions;
+    Stmt* statements = program(&parser);
+    return statements;
 }
