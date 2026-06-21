@@ -3,6 +3,7 @@
 #include "shared.h"
 #include "scanner.h"
 #include "parser.h"
+#include "printer.h"
 
 Source* read_file(char* path) {
     FILE *file_pointer = fopen(path, "r");
@@ -27,5 +28,6 @@ void main() {
     Source* source = read_file("samples/expr.cx");
     printf(source->content);
     Token* tokens = scan(source);
-    parse(tokens);
+    Expr* expressions = parse(tokens);
+    print(expressions);
 }

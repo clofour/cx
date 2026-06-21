@@ -1,7 +1,10 @@
-#include "shared.h"
-
 #ifndef SCANNER_H
 #define SCANNER_H
+
+typedef struct Source {
+    char* content;
+    int length;
+} Source;
 
 typedef enum TokenType
 {

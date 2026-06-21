@@ -1,28 +1,11 @@
 #include "shared.h"
 #include "scanner.h"
+#include "shared.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-
-Keyword keywords[] = {
-    { "and", TOKEN_AND },
-    { "class", TOKEN_CLASS },
-    { "else", TOKEN_ELSE },
-    { "false", TOKEN_FALSE },
-    { "for", TOKEN_FOR },
-    { "function", TOKEN_FUNCTION },
-    { "if", TOKEN_IF },
-    { "null", TOKEN_NULL },
-    { "or", TOKEN_OR },
-    { "print", TOKEN_PRINT },
-    { "return", TOKEN_RETURN },
-    { "true", TOKEN_TRUE },
-    { "var", TOKEN_VAR },
-    { "while", TOKEN_WHILE },
-};
-int keyword_count = sizeof(keywords) / sizeof(Keyword);
 
 static TokenType keyword_lookup(char* keyword) {
     for (int i = 0; i < keyword_count; i++) {
