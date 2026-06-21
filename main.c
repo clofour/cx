@@ -4,6 +4,7 @@
 #include "scanner.h"
 #include "parser.h"
 #include "printer.h"
+#include "compiler.h"
 
 Source* read_file(char* path) {
     FILE *file_pointer = fopen(path, "r");
@@ -36,4 +37,6 @@ void main() {
 
     printf("AST:\n");
     print(ast);
+
+    compile(ast, "basic.asm");
 }

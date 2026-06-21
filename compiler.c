@@ -1,14 +1,19 @@
 #include "compiler.h"
 #include "parser.h"
+#include "dynamic_buffer.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
-void emit(char* buffer, char* format, ...) {
+void emit(DynamicBuffer dynamic_buffer, char* format, ...) {
     va_list args;
-    va_start(args);
+    va_start(args, format);
 
-    vsnprintf(buffer, 1, format, args);
+    int buffer_length = 128;
+    char buffer[128];
+    int length = vsnprintf(buffer, 128, format, args);
+    append_dynamic_buffer(&dynamic_buffer, buffer, length);
 
     va_end(args);
 }
@@ -21,7 +26,7 @@ void compile_token(Compiler* compiler, Token* token) {
             break;
         case TOKEN_STRING:
             char* string_value = token->value.string_value;
-            emit(compiler->data, "msg db '%s', 0xd, 0xa, 0", string_value);
+            emit(compiler->data, "msg db '%s', 0xd, 0xa, 0\n", string_value);
             break;
         case TOKEN_NUMBER: printf("TBD"); break;
         case TOKEN_PLUS: printf("+"); break;
@@ -120,10 +125,10 @@ void write_asm(Compiler* compiler) {
     fprintf(file_pointer,
         "segment .data\n"
     );
-    fprintf(file_pointer, compiler->data);
+    fprintf(file_pointer, compiler->data.buffer);
 
     fprintf(file_pointer,
-        "segment .data\n"
+        "segment .text\n"
         "global main\n"
         "extern printf\n"
         "extern ExitProcess\n"
@@ -135,25 +140,23 @@ void write_asm(Compiler* compiler) {
         "mov rbp, rsp\n"
         "sub rsp, 32\n"
     );
-    fprintf(file_pointer, compiler->data);
+    fprintf(file_pointer, compiler->data.buffer);
     fprintf(file_pointer,
         "xor rax, rax\n"
         "call ExitProcess\n"
     );
 }
 
-void compile(Stmt* statements, char* path) {
+void compile(AST ast, char* path) {
     Compiler compiler;
     compiler.path = path;
-    compiler.dataCapacity = 100;
-    compiler.data = (char*) malloc(sizeof(char) * compiler.dataCapacity);
-    compiler.textCapacity = 100;
-    compiler.text = (char*) malloc(sizeof(char) * compiler.textCapacity);
+    compiler.data = create_dynamic_buffer(100);
+    compiler.text = create_dynamic_buffer(100);
 
     Compiler* compiler_pointer = &compiler;
 
     for (int i = 0; i < 2; i++) {
-        compile_stmt(compiler_pointer, &statements[i]);
+        compile_stmt(compiler_pointer, &ast.statements[i]);
     }
 
     write_asm(compiler_pointer);

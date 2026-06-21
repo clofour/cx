@@ -1,14 +1,15 @@
 #ifndef COMPILER_H
 #define COMPILER_H
 
+#include "parser.h"
+#include "dynamic_buffer.h"
+
 typedef struct {
     char* path;
-    int dataCapacity;
-    int dataLength;
-    char* data;
-    int textCapacity;
-    int textLength;
-    char* text;
+    DynamicBuffer data;
+    DynamicBuffer text;
 } Compiler;
+
+void compile(AST ast, char* path);
 
 #endif

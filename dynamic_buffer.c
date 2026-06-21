@@ -18,7 +18,7 @@ void resize_dynamic_buffer(DynamicBuffer* dynamic_buffer, int new_capacity) {
 }
 
 void grow_dynamic_buffer(DynamicBuffer* dynamic_buffer) {
-    resize(dynamic_buffer, dynamic_buffer->capacity * 2);
+    resize_dynamic_buffer(dynamic_buffer, dynamic_buffer->capacity * 2);
 }
 
 void append_dynamic_buffer(DynamicBuffer* dynamic_buffer, char* append_buffer, int length) {
@@ -26,7 +26,7 @@ void append_dynamic_buffer(DynamicBuffer* dynamic_buffer, char* append_buffer, i
         grow_dynamic_buffer(dynamic_buffer);
     }
 
-    memcpy(dynamic_buffer->buffer[dynamic_buffer->length], append_buffer, length);
+    memcpy(&dynamic_buffer->buffer[dynamic_buffer->length], append_buffer, length);
     dynamic_buffer->length += length;
 }
 
