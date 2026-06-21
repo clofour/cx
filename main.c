@@ -25,7 +25,7 @@ Source* read_file(char* path) {
 }
 
 void main() {
-    Source* source = read_file("samples/vars.cx");
+    Source* source = read_file("samples/arithmetic.cx");
     printf("Source:\n");
     printf(source->content);
     printf("\n");
