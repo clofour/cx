@@ -26,8 +26,13 @@ Source* read_file(char* path) {
 
 void main() {
     Source* source = read_file("samples/expr.cx");
+    printf("Source:\n");
     printf(source->content);
+
     Token* tokens = scan(source);
+
     Expr* expressions = parse(tokens);
+
+    printf("AST:\n");
     print(expressions);
 }
