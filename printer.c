@@ -16,28 +16,28 @@ static char* keyword_lookup(TokenType type) {
     return TOKEN_NONE;
 }
 
-void print_offset(Printer* printer) {
-    printf("%*s| ", printer->depth, "");
+void print_offset(int depth) {
+    printf("%*s| ", depth, "");
 }
 
-void print_string(Printer* printer, char* string) {
-    print_offset(printer);
+void print_string(int depth, char* string) {
+    print_offset(depth);
     printf(string);
     printf("\n");
 }
 
-void print_token_literal(Printer* printer, Token* token) {
+void print_token_literal(int depth, Token* token) {
     printf("%.*s", token->length, token->start);
 }
 
-void print_token(Printer* printer, Token* token) {
-    print_offset(printer);
+void print_token(int depth, Token* token) {
+    print_offset(depth);
 
     TokenType type = token->type;
     switch (type) {
-        case TOKEN_IDENTIFIER: print_token_literal(printer, token); break;
-        case TOKEN_STRING: print_token_literal(printer, token); break;
-        case TOKEN_NUMBER: print_token_literal(printer, token); break;
+        case TOKEN_IDENTIFIER: print_token_literal(depth, token); break;
+        case TOKEN_STRING: print_token_literal(depth, token); break;
+        case TOKEN_NUMBER: print_token_literal(depth, token); break;
         case TOKEN_PLUS: printf("+"); break;
         case TOKEN_MINUS: printf("-"); break;
         case TOKEN_SLASH: printf("/"); break;
@@ -49,91 +49,82 @@ void print_token(Printer* printer, Token* token) {
    printf("\n");
 }
 
-void print_expr(Printer* printer, Expr* expr_pointer) {
+void print_expr(int depth, Expr* expr_pointer) {
     Expr expr = *expr_pointer;
 
     switch (expr.type) {
         case EXPR_VAR:
             VarExpr varExpr = expr.value.var;
 
-            print_token(printer, varExpr.name);
+            print_token(depth, varExpr.name);
 
             return;
 
         case EXPR_ASSIGN:
             AssignExpr assignExpr = expr.value.assign;
 
-            print_token(printer, assignExpr.name);
-            printer->depth++;
-
-            print_expr(printer, assignExpr.value);
+            print_token(depth, assignExpr.name);
+            print_expr(depth + 1, assignExpr.value);
 
             return;
 
         case EXPR_BINARY:
             BinaryExpr binaryExpr = expr.value.binary;
 
-            print_token(printer, binaryExpr.operator);
-            printer->depth++;
+            print_token(depth, binaryExpr.operator);
 
-            print_expr(printer, binaryExpr.leftExpr);
-            print_expr(printer, binaryExpr.rightExpr);
+            print_expr(depth + 1, binaryExpr.leftExpr);
+            print_expr(depth + 1, binaryExpr.rightExpr);
 
             return;
 
         case EXPR_UNARY:
             UnaryExpr unaryExpr = expr.value.unary;
 
-            print_token(printer, unaryExpr.operator);
-            printer->depth++;
-
-            print_expr(printer, unaryExpr.expr);
+            print_token(depth, unaryExpr.operator);
+            print_expr(depth + 1, unaryExpr.expr);
+            
             return;
 
         case EXPR_PRIMARY:
             PrimaryExpr primaryExpr = expr.value.primary;
 
-            print_token(printer, primaryExpr.value);
+            print_token(depth, primaryExpr.value);
             return;
     }
 }
 
-void print_stmt(Printer* printer, Stmt* stmt_pointer) {
+void print_stmt(int depth, Stmt* stmt_pointer) {
     Stmt stmt = *stmt_pointer;
 
     switch(stmt.type) {
         case STMT_EXPR:
             StmtExpr stmtExpr = stmt.value.expr;
-            print_expr(printer, stmtExpr.expr);
+            print_expr(depth, stmtExpr.expr);
 
             break;
 
         case STMT_PRINT:
             StmtPrint stmtPrint = stmt.value.print;
 
-            print_string(printer, "print");
+            print_string(depth, "print");
 
-            print_expr(printer, stmtPrint.expr);
+            print_expr(depth, stmtPrint.expr);
 
             break;
 
         case STMT_VAR:
             StmtVar stmtVar = stmt.value.var;
 
-            print_token(printer, stmtVar.name);
-            printer->depth++;
-
-            print_expr(printer, stmtVar.expr);
+            print_token(depth, stmtVar.name);
+            print_expr(depth + 1, stmtVar.expr);
 
             break;
     }
 }
 
 void print(Stmt* statements) {
-    Printer* printer = (Printer*) malloc(sizeof(Printer));
-    printer->depth = 0;
-
-    for (int i = 0; i < 1; i++) {
-        print_stmt(printer, &statements[i]);
+    for (int i = 0; i < 2; i++) {
+        print_stmt(0, &statements[i]);
     }
 }
