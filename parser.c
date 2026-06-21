@@ -71,7 +71,7 @@ static Token* previous(Parser* parser) {
 }
 
 static Token* advance(Parser* parser) {
-    if (is_at_end(parser)) parser->current++;
+    if (!is_at_end(parser)) parser->current++;
     return previous(parser);
 }
 
@@ -197,5 +197,6 @@ Expr* parse(Token* tokens) {
     parser.expressions = (Expr*) malloc(sizeof(Expr) * parser.expressionsCapacity);
     parser.expressionsLength = 0;
 
-    return expression(&parser);
+    Expr* expressions = expression(&parser);
+    return expressions;
 }
