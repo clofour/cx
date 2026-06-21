@@ -24,7 +24,7 @@ Source* read_file(char* path) {
 }
 
 void main() {
-    Source* source = read_file("sample.txt");
+    Source* source = read_file("samples/expr.cx");
     printf(source->content);
     Token* tokens = scan(source);
     parse(tokens);

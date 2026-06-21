@@ -22,9 +22,9 @@ static Expr* create_primary_expr(Parser* parser, Token* value) {
     Expr* expr = create_expr(parser);
 
     expr->type = EXPR_PRIMARY;
-    PrimaryExpr* primaryExpr = expr->value.primary;
-    primaryExpr->value = value;
 
+    PrimaryExpr primaryExpr;
+    primaryExpr.value = value;
     expr->value.primary = primaryExpr;
 
     return expr;
@@ -34,10 +34,10 @@ static Expr* create_unary_expr(Parser* parser, Token* operator, Expr* expression
     Expr* expr = create_expr(parser);
 
     expr->type = EXPR_UNARY;
-    UnaryExpr* unaryExpr = expr->value.unary;
-    unaryExpr->operator = operator;
-    unaryExpr->expr = expression;
 
+    UnaryExpr unaryExpr;
+    unaryExpr.operator = operator;
+    unaryExpr.expr = expression;
     expr->value.unary = unaryExpr;
 
     return expr;
@@ -47,11 +47,11 @@ static Expr* create_binary_expr(Parser* parser, Expr* leftExpr, Token* operator,
     Expr* expr = create_expr(parser);
 
     expr->type = EXPR_BINARY;
-    BinaryExpr* binaryExpr = expr->value.binary;
-    binaryExpr->leftExpr = leftExpr;
-    binaryExpr->operator = operator;
-    binaryExpr->rightExpr = rightExpr;
 
+    BinaryExpr binaryExpr;
+    binaryExpr.leftExpr = leftExpr;
+    binaryExpr.operator = operator;
+    binaryExpr.rightExpr = rightExpr;
     expr->value.binary = binaryExpr;
 
     return expr;

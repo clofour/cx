@@ -29,9 +29,9 @@ typedef struct {
 struct Expr {
     ExprType type;
     union {
-        BinaryExpr* binary;
-        UnaryExpr* unary;
-        PrimaryExpr* primary; 
+        BinaryExpr binary;
+        UnaryExpr unary;
+        PrimaryExpr primary; 
     } value;
 };
 
