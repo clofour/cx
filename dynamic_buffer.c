@@ -27,6 +27,7 @@ void append_dynamic_buffer(DynamicBuffer* dynamic_buffer, char* append_buffer, i
     }
 
     memcpy(dynamic_buffer->buffer[dynamic_buffer->length], append_buffer, length);
+    dynamic_buffer->length += length;
 }
 
 void free_dynamic_buffer(DynamicBuffer* dynamic_buffer) {
