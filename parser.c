@@ -320,12 +320,10 @@ static Stmt* declaration(Parser* parser) {
     return statement(parser);
 }
 
-static Stmt* program(Parser* parser) {
+static void program(Parser* parser) {
     while (!is_at_end(parser)) {
         declaration(parser);
     }
-    
-    return NULL;
 }
 
 Stmt* parse(Token* tokens) {
@@ -339,6 +337,6 @@ Stmt* parse(Token* tokens) {
     parser.statements = (Stmt*) malloc(sizeof(Stmt) * parser.statementsCapacity);
     parser.statementsLength = 0;
 
-    Stmt* statements = program(&parser);
-    return statements;
+    program(&parser);
+    return parser.statements;
 }
