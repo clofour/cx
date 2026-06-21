@@ -189,7 +189,7 @@ static Expr* expression(Parser* parser) {
     return equality(parser);
 }
 
-Expr* parse_tokens(Token* tokens) {
+Expr* parse(Token* tokens) {
     Parser parser;
     parser.current = 0;
     parser.tokens = tokens;

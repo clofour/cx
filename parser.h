@@ -35,4 +35,6 @@ struct Expr {
     } value;
 };
 
+Expr* parse(Token* tokens);
+
 #endif

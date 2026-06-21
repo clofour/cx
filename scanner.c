@@ -184,7 +184,7 @@ static Token* scan_token(Scanner *scanner) {
     return NULL;
 }
 
-Token* scan_source(Source* source) {
+Token* scan(Source* source) {
     Scanner scanner;
     scanner.source = source->content;
     scanner.sourceLength = source->length;

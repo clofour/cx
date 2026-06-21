@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "shared.h"
 #include "scanner.h"
+#include "parser.h"
 
 Source* read_file(char* path) {
     FILE *file_pointer = fopen(path, "r");
@@ -25,5 +26,6 @@ Source* read_file(char* path) {
 void main() {
     Source* source = read_file("sample.txt");
     printf(source->content);
-    scan_source(source);
+    Token* tokens = scan(source);
+    parse(tokens);
 }

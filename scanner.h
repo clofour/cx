@@ -83,6 +83,6 @@ typedef struct {
     int tokenCount;
 } Scanner;
 
-Token *scan_source(Source* source);
+Token* scan(Source* source);
 
 #endif
