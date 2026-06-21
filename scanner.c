@@ -24,7 +24,7 @@ Keyword keywords[] = {
 };
 int keyword_count = sizeof(keywords) / sizeof(Keyword);
 
-TokenType keyword_lookup(char* keyword) {
+static TokenType keyword_lookup(char* keyword) {
     for (int i = 0; i < keyword_count; i++) {
         if (strcmp(keyword, keywords[i].keyword) == 0) {
             return keywords[i].type;
@@ -34,7 +34,7 @@ TokenType keyword_lookup(char* keyword) {
     return TOKEN_NONE;
 }
 
-char* substring(Scanner *scanner, int start, int end) {
+static char* substring(Scanner *scanner, int start, int end) {
     int length = end - start;
     char* value = (char*) malloc(length + 1);
     memcpy(value, scanner-> source + start, length);
@@ -43,15 +43,15 @@ char* substring(Scanner *scanner, int start, int end) {
     return value;
 }
 
-bool is_at_end(Scanner *scanner) {
+static bool is_at_end(Scanner *scanner) {
     return scanner->current >= scanner->sourceLength;
 }
 
-char advance(Scanner *scanner) {
+static char advance(Scanner *scanner) {
     return scanner->source[scanner->current++];
 }
 
-bool match(Scanner *scanner, char reference) {
+static bool match(Scanner *scanner, char reference) {
     if (is_at_end(scanner)) return false;
     if (scanner->source[scanner->current] != reference) {
         return false;
@@ -61,17 +61,17 @@ bool match(Scanner *scanner, char reference) {
     return true;
 }
 
-char peek(Scanner *scanner) {
+static char peek(Scanner *scanner) {
     if (is_at_end(scanner)) return '\0';
     return scanner->source[scanner->current];
 }
 
-char peek_next(Scanner *scanner) {
+static char peek_next(Scanner *scanner) {
     if (scanner->current + 1 >= scanner->sourceLength) return '\0';
     return scanner->source[scanner->current + 1];
 }
 
-Token* add_token(Scanner *scanner, TokenType type) {
+static Token* add_token(Scanner *scanner, TokenType type) {
     Token token;
     token.type = type;
     token.line = scanner->line;
@@ -83,7 +83,7 @@ Token* add_token(Scanner *scanner, TokenType type) {
     return &scanner->tokens[scanner->tokenCount - 1];
 }
 
-Token* number(Scanner *scanner) {
+static Token* number(Scanner *scanner) {
     while (isdigit(peek(scanner))) advance(scanner);
 
     if (peek(scanner) == '.' && isdigit(peek_next(scanner))) advance(scanner);
@@ -99,7 +99,7 @@ Token* number(Scanner *scanner) {
     return token;
 }
 
-Token* identifier(Scanner *scanner) {
+static Token* identifier(Scanner *scanner) {
     while (isalnum(peek(scanner))) advance(scanner);
 
     char* value = substring(scanner, scanner->start, scanner->current);
@@ -111,7 +111,7 @@ Token* identifier(Scanner *scanner) {
     return token;
 }
 
-Token* string(Scanner *scanner) {
+static Token* string(Scanner *scanner) {
     while (peek(scanner) != '"' && peek(scanner) != '\n' && !is_at_end(scanner)) {
         advance(scanner);
     }
@@ -127,7 +127,7 @@ Token* string(Scanner *scanner) {
     return token;
 }
 
-Token* scan_token(Scanner *scanner) {
+static Token* scan_token(Scanner *scanner) {
     char character = advance(scanner);
     switch (character) {
         case '(': return add_token(scanner, TOKEN_LEFT_PARENTHESIS);
