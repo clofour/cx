@@ -6,15 +6,16 @@
 #include <string.h>
 #include <stdarg.h>
 
-void emit(DynamicBuffer dynamic_buffer, char* format, ...) {
+void emit_inst(DynamicBuffer* dynamic_buffer, char* format, ...) {
     va_list args;
     va_start(args, format);
 
     int buffer_length = 128;
-    char buffer[128];
-    int length = vsnprintf(buffer, 128, format, args);
-    append_dynamic_buffer(&dynamic_buffer, buffer, length);
-
+    char buffer[128] = {'\0'};
+    strcat(buffer, "  ");
+    int length = vsnprintf(buffer + 2, 128 - 3, format, args);
+    strcat(buffer, "\n");
+    append_dynamic_buffer(dynamic_buffer, buffer, length + 3);
     va_end(args);
 }
 
@@ -26,11 +27,11 @@ void compile_token(Compiler* compiler, Token* token) {
             break;
         case TOKEN_STRING:
             char* string_value = token->value.string_value;
-            emit(compiler->data, "msg db '%s', 0xd, 0xa, 0\n", string_value);
+            emit_inst(compiler->data, "msg db '%s', 0xd, 0xa, 0\n", string_value);
             break;
         case TOKEN_NUMBER:
             int number_value = token->value.float_value;
-            emit(compiler->text, "mov rax, %d", number_value);
+            emit_inst(compiler->text, "mov rax, %d", number_value);
             break;
         case TOKEN_PLUS: printf("+"); break;
         case TOKEN_MINUS: printf("-"); break;
@@ -102,9 +103,8 @@ void compile_stmt(Compiler* compiler, Stmt* stmt_pointer) {
             StmtPrint stmtPrint = stmt.value.print;
 
             compile_expr(compiler, stmtPrint.expr);
-            emit(compiler->text, 
-                "lea rcx, [msg]" "call printf\n"
-            );
+            emit_inst(compiler->text, "lea rcx, [msg]");
+            emit_inst(compiler->text, "call printf");
 
             break;
 
@@ -128,7 +128,7 @@ void write_asm(Compiler* compiler) {
     fprintf(file_pointer,
         "segment .data\n"
     );
-    fprintf(file_pointer, compiler->data.buffer);
+    fprintf(file_pointer, compiler->data->buffer);
 
     fprintf(file_pointer,
         "segment .text\n"
@@ -139,14 +139,14 @@ void write_asm(Compiler* compiler) {
 
     fprintf(file_pointer,
         "main:\n"
-        "push rbp\n"
-        "mov rbp, rsp\n"
-        "sub rsp, 32\n"
+        "  push rbp\n"
+        "  mov rbp, rsp\n"
+        "  sub rsp, 32\n"
     );
-    fprintf(file_pointer, compiler->data.buffer);
+    fprintf(file_pointer, compiler->text->buffer);
     fprintf(file_pointer,
-        "xor rax, rax\n"
-        "call ExitProcess\n"
+        "  xor rax, rax\n"
+        "  call ExitProcess\n"
     );
 }
 

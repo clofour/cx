@@ -38,5 +38,5 @@ void main() {
     printf("AST:\n");
     print(ast);
 
-    compile(ast, "basic.asm");
+    compile(ast, "outputs/basic.asm");
 }

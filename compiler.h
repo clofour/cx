@@ -6,8 +6,8 @@
 
 typedef struct {
     char* path;
-    DynamicBuffer data;
-    DynamicBuffer text;
+    DynamicBuffer* data;
+    DynamicBuffer* text;
 } Compiler;
 
 void compile(AST ast, char* path);
