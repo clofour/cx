@@ -28,7 +28,10 @@ void compile_token(Compiler* compiler, Token* token) {
             char* string_value = token->value.string_value;
             emit(compiler->data, "msg db '%s', 0xd, 0xa, 0\n", string_value);
             break;
-        case TOKEN_NUMBER: printf("TBD"); break;
+        case TOKEN_NUMBER:
+            int number_value = token->value.float_value;
+            emit(compiler->text, "mov rax, %d", number_value);
+            break;
         case TOKEN_PLUS: printf("+"); break;
         case TOKEN_MINUS: printf("-"); break;
         case TOKEN_SLASH: printf("/"); break;
