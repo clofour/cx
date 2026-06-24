@@ -114,8 +114,8 @@ ValueType compile_expr(Compiler *compiler, Expr *expr_pointer)
         ValueType value = compile_expr(compiler, assignExpr.value);
 
         char *variable_name = assignExpr.name->value.identifier_value;
-        int offset = variable_define(compiler, variable_name, value);
-        emit_inst(compiler->text, "mov [rbp-%d], rax", offset);
+        Variable variable = variable_lookup(compiler, variable_name);
+        emit_inst(compiler->text, "mov [rbp-%d], rax", variable.offset);
 
         return VALUE_NONE;
     }
