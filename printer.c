@@ -42,6 +42,12 @@ void print_token(int depth, Token* token) {
         case TOKEN_MINUS: printf("-"); break;
         case TOKEN_SLASH: printf("/"); break;
         case TOKEN_STAR: printf("*"); break;
+        case TOKEN_EQUAL_EQUAL: printf("=="); break;
+        case TOKEN_BANG_EQUAL: printf("!="); break;
+        case TOKEN_GREATER: printf(">"); break;
+        case TOKEN_GREATER_EQUAL: printf(">="); break;
+        case TOKEN_LESS: printf("<"); break;
+        case TOKEN_LESS_EQUAL: printf("<="); break;
         case TOKEN_NONE: printf("An error has occurred."); break;
         default: printf(keyword_lookup(type)); break;
     }
