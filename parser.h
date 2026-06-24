@@ -49,10 +49,16 @@ struct Expr {
 };
 
 typedef enum {
+    STMT_COND,
     STMT_VAR,
     STMT_EXPR,
     STMT_PRINT
 } StmtType;
+
+typedef struct {
+    Expr* condition;
+    Stmt* body;
+} StmtCond;
 
 typedef struct {
     Token* name;
@@ -70,6 +76,7 @@ typedef struct {
 typedef struct {
     StmtType type;
     union {
+        StmtCond cond;
         StmtVar var;
         StmtExpr expr;
         StmtPrint print;

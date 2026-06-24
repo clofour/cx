@@ -35,6 +35,19 @@ static Stmt* create_stmt_print(Parser* parser, Expr* expr) {
     return stmt;
 }
 
+static Stmt* create_stmt_if(Parser* parser, Expr* condition, Stmt* body) {
+    Stmt* stmt = create_stmt(parser);
+    
+    stmt->type = STMT_COND;
+
+    StmtCond stmtCond;
+    stmtCond.condition = condition;
+    stmtCond.body = body;
+    stmt->value.cond = stmtCond;
+
+    return stmt;
+}
+
 static Stmt* create_stmt_var(Parser* parser, Token* name, Expr* expr) {
     Stmt* stmt = create_stmt(parser);
     
@@ -276,16 +289,28 @@ static Expr* expression(Parser* parser) {
 static Stmt* expr_statement(Parser* parser) {
     Expr* expr = expression(parser);
     consume(parser, TOKEN_SEMICOLON, "Lines must be terminated with semicolons.");
+
     return create_stmt_expr(parser, expr);
 }
 
 static Stmt* print_statement(Parser* parser) {
     Expr* value = expression(parser);
     consume(parser, TOKEN_SEMICOLON, "Lines must be terminated with semicolons.");
+
     return create_stmt_print(parser, value);
 }
 
+static Stmt* if_statement(Parser* parser) {
+    consume(parser, 1, TOKEN_LEFT_PARENTHESIS, "'(' expected after conditional.");
+    Expr* condition = expression(parser);
+    consume(parser, 1, TOKEN_LEFT_PARENTHESIS, "')' expected after conditional.");
+    Stmt* body = statement(parser);
+
+    return create_stmt_if(parser, condition, body);
+}
+
 static Stmt* statement(Parser* parser) {
+    if (match(parser, 1, TOKEN_IF)) return if_statement(parser);
     if (match(parser, 1, TOKEN_PRINT)) return print_statement(parser);
 
     return expr_statement(parser);
