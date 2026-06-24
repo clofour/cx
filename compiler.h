@@ -4,25 +4,11 @@
 #include "parser.h"
 #include "dynamic_buffer.h"
 
-typedef enum {
-    VALUE_NONE,
-    VALUE_NUMBER,
-    VALUE_STRING,
-    VALUE_BOOL
-} ValueType;
-
-typedef struct {
-    char* name;
-    ValueType type;
-    int offset;
-} Variable;
-
 typedef struct {
     char* path;
     DynamicBuffer* data;
     DynamicBuffer* text;
-    Variable* variables;
-    int variable_count;
+    SymbolTable* symbol_table;
     int unique_counter;
 } Compiler;
 

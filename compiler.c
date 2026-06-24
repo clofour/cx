@@ -1,6 +1,7 @@
 #include "compiler.h"
 #include "parser.h"
 #include "dynamic_buffer.h"
+#include "symbol_table.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,32 +21,6 @@ static bool compare(TokenType reference, int count, ...) {
 
     va_end(args);
     return false;
-}
-
-static Variable variable_lookup(Compiler *compiler, char *name)
-{
-    for (int i = 0; i < compiler->variable_count; i++)
-    {
-        Variable variable = compiler->variables[i];
-
-        if (strcmp(name, variable.name) == 0)
-        {
-            return variable;
-        }
-    }
-}
-
-static int variable_define(Compiler *compiler, char *name, ValueType type)
-{
-    Variable variable;
-    variable.name = name;
-    variable.type = type;
-    variable.offset = 8 * (compiler->variable_count + 1);
-
-    compiler->variables[compiler->variable_count] = variable;
-    compiler->variable_count += 1;
-
-    return variable.offset;
 }
 
 static int allocate_label(Compiler* compiler) {
@@ -92,7 +67,7 @@ ValueType compile_token(Compiler *compiler, Token *token)
     {
         case TOKEN_IDENTIFIER: {
             char *identifier_value = token->value.identifier_value;
-            Variable variable = variable_lookup(compiler, identifier_value);
+            Symbol variable = symbol_lookup(compiler->symbol_table, identifier_value);
 
             emit_inst(compiler->text, "mov rax, [rbp-%d]", variable.offset);
             return variable.type;
@@ -149,7 +124,7 @@ ValueType compile_expr(Compiler *compiler, Expr *expr_pointer)
             ValueType value = compile_expr(compiler, assign_expr.value);
 
             char *variable_name = assign_expr.name->value.identifier_value;
-            Variable variable = variable_lookup(compiler, variable_name);
+            Symbol variable = symbol_lookup(compiler, variable_name);
             emit_inst(compiler->text, "mov [rbp-%d], rax", variable.offset);
 
             return VALUE_NONE;
@@ -333,7 +308,7 @@ void compile_stmt(Compiler *compiler, Stmt *stmt_pointer)
 
 void write_asm(Compiler *compiler)
 {
-    int stack_space = 32 + 8 * (compiler->variable_count);
+    int stack_space = 32 + 8 * (compiler->symbol_table->symbol_count);
     if (stack_space % 16 != 0) {
         stack_space = 16 * (stack_space / 16 + 1);
     }
@@ -371,7 +346,7 @@ void compile(AST ast, char *path)
     compiler.path = path;
     compiler.data = create_dynamic_buffer(100);
     compiler.text = create_dynamic_buffer(100);
-    compiler.variables = malloc(sizeof(Variable) * 256);
+    compiler.symbol_table = create_symbol_table();
     compiler.unique_counter = 0;
 
     Compiler *compiler_pointer = &compiler;
