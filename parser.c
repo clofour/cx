@@ -48,6 +48,19 @@ static Stmt* create_stmt_if(Parser* parser, Expr* condition, Stmt* body) {
     return stmt;
 }
 
+static Stmt* create_stmt_while(Parser* parser, Expr* condition, Stmt* body) {
+    Stmt* stmt = create_stmt(parser);
+    
+    stmt->type = STMT_LOOP;
+
+    StmtLoop stmtLoop;
+    stmtLoop.condition = condition;
+    stmtLoop.body = body;
+    stmt->value.loop = stmtLoop;
+
+    return stmt;
+}
+
 static Stmt* create_stmt_var(Parser* parser, Token* name, Expr* expr) {
     Stmt* stmt = create_stmt(parser);
     
@@ -311,8 +324,18 @@ static Stmt* if_statement(Parser* parser) {
     return create_stmt_if(parser, condition, body);
 }
 
+static Stmt* while_statement(Parser* parser) {
+    consume(parser, TOKEN_LEFT_PARENTHESIS, "'(' expected after loop.");
+    Expr* condition = expression(parser);
+    consume(parser, TOKEN_RIGHT_PARENTHESIS, "')' expected after loop.");
+    Stmt* body = statement(parser);
+
+    return create_stmt_while(parser, condition, body);
+}
+
 static Stmt* statement(Parser* parser) {
     if (match(parser, 1, TOKEN_IF)) return if_statement(parser);
+    if (match(parser, 1, TOKEN_WHILE)) return while_statement(parser);
     if (match(parser, 1, TOKEN_PRINT)) return print_statement(parser);
 
     return expr_statement(parser);

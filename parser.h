@@ -52,6 +52,7 @@ typedef struct Stmt Stmt;
 
 typedef enum {
     STMT_COND,
+    STMT_LOOP,
     STMT_VAR,
     STMT_EXPR,
     STMT_PRINT
@@ -61,6 +62,11 @@ typedef struct {
     Expr* condition;
     Stmt* body;
 } StmtCond;
+
+typedef struct {
+    Expr* condition;
+    Stmt* body;
+} StmtLoop;
 
 typedef struct {
     Token* name;
@@ -79,6 +85,7 @@ struct Stmt {
     StmtType type;
     union {
         StmtCond cond;
+        StmtLoop loop;
         StmtVar var;
         StmtExpr expr;
         StmtPrint print;
