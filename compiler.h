@@ -12,6 +12,7 @@ typedef enum {
 
 typedef struct {
     char* name;
+    ValueType type;
     int offset;
 } Variable;
 

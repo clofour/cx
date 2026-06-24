@@ -89,7 +89,7 @@ static Token* identifier(Scanner *scanner) {
     TokenType type = keyword_lookup(value);
     if (type == TOKEN_NONE) type = TOKEN_IDENTIFIER;
     Token* token = add_token(scanner, type);
-    free(value);
+    if (type == TOKEN_IDENTIFIER) token->value.identifier_value = value;
 
     return token;
 }

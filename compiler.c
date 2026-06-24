@@ -6,23 +6,24 @@
 #include <string.h>
 #include <stdarg.h>
 
-static int variable_lookup(Compiler* compiler, char* name) {
+static Variable variable_lookup(Compiler* compiler, char* name) {
     for (int i = 0; i < compiler->variableCount; i++) {
         Variable variable = compiler->variables[i];
+
         if (strcmp(name, variable.name) == 0) {
-            return variable.offset;
+            return variable;
         }
     }
-
-    return 0;
 }
 
-static int variable_define(Compiler* compiler, char* name) {
+static int variable_define(Compiler* compiler, char* name, ValueType type) {
     Variable variable;
     variable.name = name;
+    variable.type = type;
     variable.offset = 8 * (compiler->variableCount + 1);
 
     compiler->variables[compiler->variableCount] = variable;
+    compiler->variableCount += 1;
 
     return variable.offset;
 }
@@ -45,21 +46,29 @@ ValueType compile_token(Compiler* compiler, Token* token) {
     TokenType type = token->type;
     switch (type) {
         case TOKEN_IDENTIFIER:
-            printf("TBD");
-            break;
+
+            char* identifier_value = token->value.identifier_value;
+            Variable variable = variable_lookup(compiler, identifier_value);
+
+            emit_inst(compiler->text, "mov rax, [rbp-%d]", variable.offset);
+            return variable.type;
+
         case TOKEN_STRING:
+
             char* string_value = token->value.string_value;
-            emit_inst(compiler->data, "msg db '%s', 0xd, 0xa, 0\n", string_value);
+
+            emit_inst(compiler->data, "msg db '%s', 0xd, 0xa, 0", string_value);
             emit_inst(compiler->text, "lea rax, [msg]");
+
             return VALUE_STRING;
+
         case TOKEN_NUMBER:
+
             int number_value = token->value.float_value;
             emit_inst(compiler->text, "mov rax, %d", number_value);
+
             return VALUE_NUMBER;
-        case TOKEN_PLUS: printf("+"); break;
-        case TOKEN_MINUS: printf("-"); break;
-        case TOKEN_SLASH: printf("/"); break;
-        case TOKEN_STAR: printf("*"); break;
+
         case TOKEN_NONE: printf("An error has occurred."); break;
         default: printf("TBD"); break;
     }
@@ -72,9 +81,7 @@ ValueType compile_expr(Compiler* compiler, Expr* expr_pointer) {
         case EXPR_VAR:
             VarExpr varExpr = expr.value.var;
 
-            compile_token(compiler, varExpr.name);
-
-            return VALUE_NONE;
+            return compile_token(compiler, varExpr.name);
 
         case EXPR_ASSIGN:
             AssignExpr assignExpr = expr.value.assign;
@@ -129,39 +136,44 @@ void compile_stmt(Compiler* compiler, Stmt* stmt_pointer) {
     Stmt stmt = *stmt_pointer;
 
     switch(stmt.type) {
-        case STMT_EXPR:
+        case STMT_EXPR: {
             StmtExpr stmtExpr = stmt.value.expr;
             compile_expr(compiler, stmtExpr.expr);
 
             break;
 
-        case STMT_PRINT:
+        }
+
+        case STMT_PRINT: {
             StmtPrint stmtPrint = stmt.value.print;
 
             ValueType value = compile_expr(compiler, stmtPrint.expr);
             emit_inst(compiler->text, "mov rdx, rax");
             switch (value) {
                 case VALUE_NUMBER:
-                    emit_inst(compiler->data, "format_string db '%s', 0xd, 0xa, 0\n", "%d");
+                    emit_inst(compiler->data, "format_string db '%s', 0xd, 0xa, 0", "%d");
                     break;
                 case VALUE_STRING:
-                    emit_inst(compiler->data, "format_string db '%s', 0xd, 0xa, 0\n", "%s");
+                    emit_inst(compiler->data, "format_string db '%s', 0xd, 0xa, 0", "%s");
                     break;
             }
             emit_inst(compiler->text, "lea rcx, [format_string]");
             emit_inst(compiler->text, "call printf");
 
             break;
+        }
 
-        case STMT_VAR:
+        case STMT_VAR: {
             StmtVar stmtVar = stmt.value.var;
 
-            int offset = variable_define(compiler, "hello");
+            ValueType value = compile_expr(compiler, stmtVar.expr);
 
-            compile_expr(compiler, stmtVar.expr);
+            char* variable_name = stmtVar.name->value.identifier_value;
+            int offset = variable_define(compiler, variable_name, value);
             emit_inst(compiler->text, "mov [rbp-%d], rax", offset);
 
             break;
+        }
     }
 }
 
@@ -188,7 +200,8 @@ void write_asm(Compiler* compiler) {
         "main:\n"
         "  push rbp\n"
         "  mov rbp, rsp\n"
-        "  sub rsp, 32\n"
+        "  sub rsp, %d\n",
+        32 + 8 * (compiler->variableCount)
     );
     fprintf(file_pointer, "%s", compiler->text->buffer);
     fprintf(file_pointer,

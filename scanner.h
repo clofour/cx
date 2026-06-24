@@ -71,7 +71,8 @@ typedef struct
     {
         long int_value;
         double float_value;
-        char *string_value;
+        char* string_value;
+        char* identifier_value;
     } value;
 } Token;
 
