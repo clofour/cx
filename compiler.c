@@ -12,10 +12,14 @@ static bool compare(TokenType reference, int count, ...) {
     va_start(args, count);
 
     for (int i = 0; i < count; i++) {
-        if (reference == args[i]) return true;
+        if (reference == va_arg(args, TokenType)) {
+            va_end(args);
+            return true;
+        }
     }
 
     va_end(args);
+    return false;
 }
 
 static Variable variable_lookup(Compiler *compiler, char *name)
@@ -164,10 +168,12 @@ ValueType compile_expr(Compiler *compiler, Expr *expr_pointer)
                     emit_inst(compiler->text, "sete al");
 
             }
+
+            return rightValue == leftValue && rightValue;
         }
 
         if (compare(operator, 6, TOKEN_EQUAL_EQUAL, TOKEN_BANG_EQUAL, TOKEN_LESS, TOKEN_LESS_EQUAL, TOKEN_GREATER, TOKEN_GREATER_EQUAL)) {
-            emit_inst(compiler->text, "cmp rax, rbx");
+            emit_inst(compiler->text, "cmp rax, rcx");
             
             switch (operator)
             {
@@ -192,10 +198,9 @@ ValueType compile_expr(Compiler *compiler, Expr *expr_pointer)
             }
 
             emit_inst(compiler->text, "movzx eax, al");
+
+            return VALUE_BOOL;
         }
-
-
-        return rightValue == leftValue && rightValue;
     }
 
     case EXPR_UNARY:
@@ -248,6 +253,9 @@ void compile_stmt(Compiler *compiler, Stmt *stmt_pointer)
         case VALUE_STRING:
             data_index = emit_data(compiler, "%s");
             break;
+        case VALUE_BOOL:
+            data_index = emit_data(compiler, "%d");
+            break;
         }
         emit_inst(compiler->text, "lea rcx, [dat%d]", data_index);
         emit_inst(compiler->text, "call printf");
@@ -272,6 +280,11 @@ void compile_stmt(Compiler *compiler, Stmt *stmt_pointer)
 
 void write_asm(Compiler *compiler)
 {
+    int stack_space = 32 + 8 * (compiler->variableCount);
+    if (stack_space % 16 != 0) {
+        stack_space = 16 * (stack_space / 16 + 1);
+    }
+
     FILE *file_pointer = fopen(compiler->path, "w");
     fprintf(file_pointer,
             "bits 64\n"
@@ -292,7 +305,7 @@ void write_asm(Compiler *compiler)
             "  push rbp\n"
             "  mov rbp, rsp\n"
             "  sub rsp, %d\n",
-            32 + 8 * (compiler->variableCount));
+            stack_space);
     fprintf(file_pointer, "%s", compiler->text->buffer);
     fprintf(file_pointer,
             "  xor rax, rax\n"

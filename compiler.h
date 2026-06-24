@@ -7,7 +7,8 @@
 typedef enum {
     VALUE_NONE,
     VALUE_NUMBER,
-    VALUE_STRING
+    VALUE_STRING,
+    VALUE_BOOL
 } ValueType;
 
 typedef struct {
