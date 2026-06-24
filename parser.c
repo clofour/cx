@@ -61,6 +61,19 @@ static Stmt* create_stmt_while(Parser* parser, Expr* condition, Stmt* body) {
     return stmt;
 }
 
+static Stmt* create_stmt_block(Parser* parser, int length, Stmt** statements) {
+    Stmt* stmt = create_stmt(parser);
+    
+    stmt->type = STMT_BLOCK;
+
+    StmtBlock stmtBlock;
+    stmtBlock.length = length;
+    stmtBlock.statements = statements;
+    stmt->value.block = stmtBlock;
+
+    return stmt;
+}
+
 static Stmt* create_stmt_var(Parser* parser, Token* name, Expr* expr) {
     Stmt* stmt = create_stmt(parser);
     
@@ -299,6 +312,7 @@ static Expr* expression(Parser* parser) {
     return assignment(parser);
 }
 
+static Stmt* declaration(Parser* parser);
 static Stmt* statement(Parser* parser);
 
 static Stmt* expr_statement(Parser* parser) {
@@ -333,10 +347,24 @@ static Stmt* while_statement(Parser* parser) {
     return create_stmt_while(parser, condition, body);
 }
 
+static Stmt* block_statement(Parser* parser) {
+    Stmt** statements = (Stmt**) malloc(sizeof(Stmt*) * 100);
+    int length = 0;
+
+    while (!check(parser, TOKEN_RIGHT_BRACE) && !is_at_end(parser)) {
+        statements[length++] = declaration(parser);
+    }
+
+    consume(parser, TOKEN_RIGHT_BRACE, "'}' expected to terminate block.");
+
+    return create_stmt_block(parser, length, statements);
+}
+
 static Stmt* statement(Parser* parser) {
     if (match(parser, 1, TOKEN_IF)) return if_statement(parser);
     if (match(parser, 1, TOKEN_WHILE)) return while_statement(parser);
     if (match(parser, 1, TOKEN_PRINT)) return print_statement(parser);
+    if (match(parser, 1, TOKEN_LEFT_BRACE)) return block_statement(parser);
 
     return expr_statement(parser);
 }
