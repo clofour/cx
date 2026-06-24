@@ -22,7 +22,7 @@ typedef struct {
     DynamicBuffer* data;
     DynamicBuffer* text;
     Variable* variables;
-    int variableCount;
+    int variable_count;
     int unique_counter;
 } Compiler;
 
