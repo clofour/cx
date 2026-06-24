@@ -60,42 +60,42 @@ void print_expr(int depth, Expr* expr_pointer) {
 
     switch (expr.type) {
         case EXPR_VAR:
-            VarExpr varExpr = expr.value.var;
+            VarExpr var_expr = expr.value.var;
 
-            print_token(depth, varExpr.name);
+            print_token(depth, var_expr.name);
 
             return;
 
         case EXPR_ASSIGN:
-            AssignExpr assignExpr = expr.value.assign;
+            AssignExpr assign_expr = expr.value.assign;
 
-            print_token(depth, assignExpr.name);
-            print_expr(depth + 1, assignExpr.value);
+            print_token(depth, assign_expr.name);
+            print_expr(depth + 1, assign_expr.value);
 
             return;
 
         case EXPR_BINARY:
-            BinaryExpr binaryExpr = expr.value.binary;
+            BinaryExpr binary_expr = expr.value.binary;
 
-            print_token(depth, binaryExpr.operator);
+            print_token(depth, binary_expr.operator);
 
-            print_expr(depth + 1, binaryExpr.leftExpr);
-            print_expr(depth + 1, binaryExpr.rightExpr);
+            print_expr(depth + 1, binary_expr.leftExpr);
+            print_expr(depth + 1, binary_expr.rightExpr);
 
             return;
 
         case EXPR_UNARY:
-            UnaryExpr unaryExpr = expr.value.unary;
+            UnaryExpr unary_expr = expr.value.unary;
 
-            print_token(depth, unaryExpr.operator);
-            print_expr(depth + 1, unaryExpr.expr);
+            print_token(depth, unary_expr.operator);
+            print_expr(depth + 1, unary_expr.expr);
             
             return;
 
         case EXPR_PRIMARY:
-            PrimaryExpr primaryExpr = expr.value.primary;
+            PrimaryExpr primary_expr = expr.value.primary;
 
-            print_token(depth, primaryExpr.value);
+            print_token(depth, primary_expr.value);
             return;
     }
 }
@@ -105,25 +105,25 @@ void print_stmt(int depth, Stmt* stmt_pointer) {
 
     switch(stmt.type) {
         case STMT_EXPR:
-            StmtExpr stmtExpr = stmt.value.expr;
-            print_expr(depth, stmtExpr.expr);
+            StmtExpr stmt_expr = stmt.value.expr;
+            print_expr(depth, stmt_expr.expr);
 
             break;
 
         case STMT_PRINT:
-            StmtPrint stmtPrint = stmt.value.print;
+            StmtPrint stmt_print = stmt.value.print;
 
             print_string(depth, "print");
 
-            print_expr(depth + 1, stmtPrint.expr);
+            print_expr(depth + 1, stmt_print.expr);
 
             break;
 
         case STMT_VAR:
-            StmtVar stmtVar = stmt.value.var;
+            StmtVar stmt_var = stmt.value.var;
 
-            print_token(depth, stmtVar.name);
-            print_expr(depth + 1, stmtVar.expr);
+            print_token(depth, stmt_var.name);
+            print_expr(depth + 1, stmt_var.expr);
 
             break;
     }
