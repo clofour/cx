@@ -78,20 +78,27 @@ ValueType compile_expr(Compiler* compiler, Expr* expr_pointer) {
     Expr expr = *expr_pointer;
 
     switch (expr.type) {
-        case EXPR_VAR:
+        case EXPR_VAR: {
             VarExpr varExpr = expr.value.var;
 
             return compile_token(compiler, varExpr.name);
+        }
 
-        case EXPR_ASSIGN:
+        case EXPR_ASSIGN: {
+
             AssignExpr assignExpr = expr.value.assign;
 
-            compile_token(compiler, assignExpr.name);
-            compile_expr(compiler, assignExpr.value);
+            ValueType value = compile_expr(compiler, assignExpr.value);
+
+            char* variable_name = assignExpr.name->value.identifier_value;
+            int offset = variable_define(compiler, variable_name, value);
+            emit_inst(compiler->text, "mov [rbp-%d], rax", offset);
 
             return VALUE_NONE;
 
-        case EXPR_BINARY:
+        }
+
+        case EXPR_BINARY: {
             BinaryExpr binaryExpr = expr.value.binary;
 
             ValueType rightValue = compile_expr(compiler, binaryExpr.rightExpr);
@@ -116,19 +123,23 @@ ValueType compile_expr(Compiler* compiler, Expr* expr_pointer) {
             }
 
             return rightValue == leftValue && rightValue;
+        }
 
-        case EXPR_UNARY:
+        case EXPR_UNARY: {
             UnaryExpr unaryExpr = expr.value.unary;
 
             ValueType value = compile_token(compiler, unaryExpr.operator);
             compile_expr(compiler, unaryExpr.expr);
             
             return value;
+        }
 
-        case EXPR_PRIMARY:
-            PrimaryExpr primaryExpr = expr.value.primary;
+        case EXPR_PRIMARY: {
+
+                        PrimaryExpr primaryExpr = expr.value.primary;
 
             return compile_token(compiler, primaryExpr.value);
+        }
     }
 }
 
