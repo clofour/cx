@@ -131,6 +131,6 @@ void print_stmt(int depth, Stmt* stmt_pointer) {
 
 void print(AST ast) {
     for (int i = 0; i < ast.length; i++) {
-        print_stmt(0, &ast.statements[i]);
+        print_stmt(0, ast.nodes[i]);
     }
 }

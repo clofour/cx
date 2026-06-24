@@ -48,19 +48,31 @@ static int variable_define(Compiler *compiler, char *name, ValueType type)
     return variable.offset;
 }
 
+void emit(DynamicBuffer* dynamic_buffer, char* string, int length) {
+    append_dynamic_buffer(dynamic_buffer, string, length);
+}
+
 void emit_inst(DynamicBuffer *dynamic_buffer, char *format, ...)
 {
     va_list args;
     va_start(args, format);
 
-    int buffer_length = 128;
-    char buffer[128] = {'\0'};
-    strcat(buffer, "  ");
-    int length = vsnprintf(buffer + 2, 128 - 3, format, args);
-    strcat(buffer, "\n");
-    append_dynamic_buffer(dynamic_buffer, buffer, length + 3);
+    char raw[128];
+    char processed[128];
+    vsnprintf(raw, 128, format, args);
+    int length = snprintf(processed, 128, "  %s\n", raw);
+    
+    emit(dynamic_buffer, processed, length);
 
     va_end(args);
+}
+
+int emit_label(Compiler* compiler, char* value) {
+    int label_index = compiler->labelCount++;
+
+    emit_inst(compiler->text, "%s%d:", value, label_index);
+
+    return label_index;
 }
 
 int emit_data(Compiler* compiler, char* value) {
@@ -76,36 +88,41 @@ ValueType compile_token(Compiler *compiler, Token *token)
     TokenType type = token->type;
     switch (type)
     {
-    case TOKEN_IDENTIFIER:
+        case TOKEN_IDENTIFIER: {
+            char *identifier_value = token->value.identifier_value;
+            Variable variable = variable_lookup(compiler, identifier_value);
 
-        char *identifier_value = token->value.identifier_value;
-        Variable variable = variable_lookup(compiler, identifier_value);
+            emit_inst(compiler->text, "mov rax, [rbp-%d]", variable.offset);
+            return variable.type;
+        }
 
-        emit_inst(compiler->text, "mov rax, [rbp-%d]", variable.offset);
-        return variable.type;
+        case TOKEN_STRING: {
 
-    case TOKEN_STRING:
+            char *string_value = token->value.string_value;
 
-        char *string_value = token->value.string_value;
+            int data_index = emit_data(compiler, string_value);
+            emit_inst(compiler->text, "lea rax, [dat%d]", data_index);
 
-        int data_index = emit_data(compiler, string_value);
-        emit_inst(compiler->text, "lea rax, [dat%d]", data_index);
+            return VALUE_STRING;
+        }
 
-        return VALUE_STRING;
+        case TOKEN_NUMBER: {
 
-    case TOKEN_NUMBER:
+            int number_value = token->value.float_value;
+            emit_inst(compiler->text, "mov rax, %d", number_value);
 
-        int number_value = token->value.float_value;
-        emit_inst(compiler->text, "mov rax, %d", number_value);
+            return VALUE_NUMBER;
+        }
 
-        return VALUE_NUMBER;
 
-    case TOKEN_NONE:
-        printf("An error has occurred.");
-        break;
-    default:
-        printf("TBD");
-        break;
+        case TOKEN_NONE: {
+            printf("An error has occurred.");
+            break;
+        }
+        default: {
+            printf("TBD");
+            break;
+        }
     }
 }
 
@@ -115,111 +132,111 @@ ValueType compile_expr(Compiler *compiler, Expr *expr_pointer)
 
     switch (expr.type)
     {
-    case EXPR_VAR:
-    {
-        VarExpr varExpr = expr.value.var;
+        case EXPR_VAR:
+        {
+            VarExpr varExpr = expr.value.var;
 
-        return compile_token(compiler, varExpr.name);
-    }
-
-    case EXPR_ASSIGN:
-    {
-
-        AssignExpr assignExpr = expr.value.assign;
-
-        ValueType value = compile_expr(compiler, assignExpr.value);
-
-        char *variable_name = assignExpr.name->value.identifier_value;
-        Variable variable = variable_lookup(compiler, variable_name);
-        emit_inst(compiler->text, "mov [rbp-%d], rax", variable.offset);
-
-        return VALUE_NONE;
-    }
-
-    case EXPR_BINARY:
-    {
-        BinaryExpr binaryExpr = expr.value.binary;
-
-        ValueType rightValue = compile_expr(compiler, binaryExpr.rightExpr);
-        emit_inst(compiler->text, "push rax");
-        ValueType leftValue = compile_expr(compiler, binaryExpr.leftExpr);
-        emit_inst(compiler->text, "pop rcx");
-
-        TokenType operator = binaryExpr.operator->type;
-
-        if (compare(operator, 4, TOKEN_PLUS, TOKEN_MINUS, TOKEN_STAR, TOKEN_SLASH)) {
-            switch (operator)
-            {
-                case TOKEN_PLUS:
-                    emit_inst(compiler->text, "add rax, rcx");
-                    break;
-                case TOKEN_MINUS:
-                    emit_inst(compiler->text, "sub rax, rcx");
-                    break;
-                case TOKEN_STAR:
-                    emit_inst(compiler->text, "imul rax, rcx");
-                    break;
-                case TOKEN_SLASH:
-                    emit_inst(compiler->text, "cqo");
-                    emit_inst(compiler->text, "idiv rcx");
-                    break;
-                case TOKEN_EQUAL_EQUAL:
-                    emit_inst(compiler->text, "cmp rax, rbx");
-                    emit_inst(compiler->text, "sete al");
-
-            }
-
-            return rightValue == leftValue && rightValue;
+            return compile_token(compiler, varExpr.name);
         }
 
-        if (compare(operator, 6, TOKEN_EQUAL_EQUAL, TOKEN_BANG_EQUAL, TOKEN_LESS, TOKEN_LESS_EQUAL, TOKEN_GREATER, TOKEN_GREATER_EQUAL)) {
-            emit_inst(compiler->text, "cmp rax, rcx");
-            
-            switch (operator)
-            {
-                case TOKEN_EQUAL_EQUAL:
-                    emit_inst(compiler->text, "sete al");
-                    break;
-                case TOKEN_BANG_EQUAL:
-                    emit_inst(compiler->text, "setne al");
-                    break;
-                case TOKEN_LESS:
-                    emit_inst(compiler->text, "setl al");
-                    break;
-                case TOKEN_LESS_EQUAL:
-                    emit_inst(compiler->text, "setle al");
-                    break;
-                case TOKEN_GREATER:
-                    emit_inst(compiler->text, "setg al");
-                    break;
-                case TOKEN_GREATER_EQUAL:
-                    emit_inst(compiler->text, "setge al");
-                    break;
+        case EXPR_ASSIGN:
+        {
+
+            AssignExpr assignExpr = expr.value.assign;
+
+            ValueType value = compile_expr(compiler, assignExpr.value);
+
+            char *variable_name = assignExpr.name->value.identifier_value;
+            Variable variable = variable_lookup(compiler, variable_name);
+            emit_inst(compiler->text, "mov [rbp-%d], rax", variable.offset);
+
+            return VALUE_NONE;
+        }
+
+        case EXPR_BINARY:
+        {
+            BinaryExpr binaryExpr = expr.value.binary;
+
+            ValueType rightValue = compile_expr(compiler, binaryExpr.rightExpr);
+            emit_inst(compiler->text, "push rax");
+            ValueType leftValue = compile_expr(compiler, binaryExpr.leftExpr);
+            emit_inst(compiler->text, "pop rcx");
+
+            TokenType operator = binaryExpr.operator->type;
+
+            if (compare(operator, 4, TOKEN_PLUS, TOKEN_MINUS, TOKEN_STAR, TOKEN_SLASH)) {
+                switch (operator)
+                {
+                    case TOKEN_PLUS:
+                        emit_inst(compiler->text, "add rax, rcx");
+                        break;
+                    case TOKEN_MINUS:
+                        emit_inst(compiler->text, "sub rax, rcx");
+                        break;
+                    case TOKEN_STAR:
+                        emit_inst(compiler->text, "imul rax, rcx");
+                        break;
+                    case TOKEN_SLASH:
+                        emit_inst(compiler->text, "cqo");
+                        emit_inst(compiler->text, "idiv rcx");
+                        break;
+                    case TOKEN_EQUAL_EQUAL:
+                        emit_inst(compiler->text, "cmp rax, rbx");
+                        emit_inst(compiler->text, "sete al");
+
+                }
+
+                return rightValue == leftValue && rightValue;
             }
 
-            emit_inst(compiler->text, "movzx eax, al");
+            if (compare(operator, 6, TOKEN_EQUAL_EQUAL, TOKEN_BANG_EQUAL, TOKEN_LESS, TOKEN_LESS_EQUAL, TOKEN_GREATER, TOKEN_GREATER_EQUAL)) {
+                emit_inst(compiler->text, "cmp rax, rcx");
+                
+                switch (operator)
+                {
+                    case TOKEN_EQUAL_EQUAL:
+                        emit_inst(compiler->text, "sete al");
+                        break;
+                    case TOKEN_BANG_EQUAL:
+                        emit_inst(compiler->text, "setne al");
+                        break;
+                    case TOKEN_LESS:
+                        emit_inst(compiler->text, "setl al");
+                        break;
+                    case TOKEN_LESS_EQUAL:
+                        emit_inst(compiler->text, "setle al");
+                        break;
+                    case TOKEN_GREATER:
+                        emit_inst(compiler->text, "setg al");
+                        break;
+                    case TOKEN_GREATER_EQUAL:
+                        emit_inst(compiler->text, "setge al");
+                        break;
+                }
 
-            return VALUE_BOOL;
+                emit_inst(compiler->text, "movzx eax, al");
+
+                return VALUE_BOOL;
+            }
         }
-    }
 
-    case EXPR_UNARY:
-    {
-        UnaryExpr unaryExpr = expr.value.unary;
+        case EXPR_UNARY:
+        {
+            UnaryExpr unaryExpr = expr.value.unary;
 
-        ValueType value = compile_token(compiler, unaryExpr.operator);
-        compile_expr(compiler, unaryExpr.expr);
+            ValueType value = compile_token(compiler, unaryExpr.operator);
+            compile_expr(compiler, unaryExpr.expr);
 
-        return value;
-    }
+            return value;
+        }
 
-    case EXPR_PRIMARY:
-    {
+        case EXPR_PRIMARY:
+        {
 
-        PrimaryExpr primaryExpr = expr.value.primary;
+            PrimaryExpr primaryExpr = expr.value.primary;
 
-        return compile_token(compiler, primaryExpr.value);
-    }
+            return compile_token(compiler, primaryExpr.value);
+        }
     }
 }
 
@@ -229,52 +246,66 @@ void compile_stmt(Compiler *compiler, Stmt *stmt_pointer)
 
     switch (stmt.type)
     {
-    case STMT_EXPR:
-    {
-        StmtExpr stmtExpr = stmt.value.expr;
-        compile_expr(compiler, stmtExpr.expr);
-
-        break;
-    }
-
-    case STMT_PRINT:
-    {
-        StmtPrint stmtPrint = stmt.value.print;
-
-        ValueType value = compile_expr(compiler, stmtPrint.expr);
-        emit_inst(compiler->text, "mov rdx, rax");
-
-        int data_index;
-        switch (value)
+        case STMT_EXPR:
         {
-        case VALUE_NUMBER:
-            data_index = emit_data(compiler, "%d");
-            break;
-        case VALUE_STRING:
-            data_index = emit_data(compiler, "%s");
-            break;
-        case VALUE_BOOL:
-            data_index = emit_data(compiler, "%d");
+            StmtExpr stmtExpr = stmt.value.expr;
+            compile_expr(compiler, stmtExpr.expr);
+
             break;
         }
-        emit_inst(compiler->text, "lea rcx, [dat%d]", data_index);
-        emit_inst(compiler->text, "call printf");
 
-        break;
-    }
+        case STMT_PRINT:
+        {
+            StmtPrint stmtPrint = stmt.value.print;
 
-    case STMT_VAR:
-    {
-        StmtVar stmtVar = stmt.value.var;
+            ValueType value = compile_expr(compiler, stmtPrint.expr);
+            emit_inst(compiler->text, "mov rdx, rax");
 
-        ValueType value = compile_expr(compiler, stmtVar.expr);
+            int data_index;
+            switch (value)
+            {
+            case VALUE_NUMBER:
+                data_index = emit_data(compiler, "%d");
+                break;
+            case VALUE_STRING:
+                data_index = emit_data(compiler, "%s");
+                break;
+            case VALUE_BOOL:
+                data_index = emit_data(compiler, "%d");
+                break;
+            }
+            emit_inst(compiler->text, "lea rcx, [dat%d]", data_index);
+            emit_inst(compiler->text, "call printf");
 
-        char *variable_name = stmtVar.name->value.identifier_value;
-        int offset = variable_define(compiler, variable_name, value);
-        emit_inst(compiler->text, "mov [rbp-%d], rax", offset);
+            break;
+        }
 
-        break;
-    }
+        case STMT_COND:
+        {
+            StmtCond stmtCond = stmt.value.cond;
+
+            compile_expr(compiler, stmtCond.condition);
+            emit_inst(compiler->text, "cmp rax, 0");
+            emit_inst(compiler->text, "je end%d", compiler->labelCount);
+            
+            compile_stmt(compiler, stmtCond.body);
+            int label_index = emit_label(compiler, "end");
+
+            break;
+        }
+
+        case STMT_VAR:
+        {
+            StmtVar stmtVar = stmt.value.var;
+
+            ValueType value = compile_expr(compiler, stmtVar.expr);
+
+            char *variable_name = stmtVar.name->value.identifier_value;
+            int offset = variable_define(compiler, variable_name, value);
+            emit_inst(compiler->text, "mov [rbp-%d], rax", offset);
+
+            break;
+        }
     }
 }
 
@@ -326,7 +357,7 @@ void compile(AST ast, char *path)
 
     for (int i = 0; i < ast.length; i++)
     {
-        compile_stmt(compiler_pointer, &ast.statements[i]);
+        compile_stmt(compiler_pointer, ast.nodes[i]);
     }
 
     write_asm(compiler_pointer);

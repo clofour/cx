@@ -26,7 +26,7 @@ Source* read_file(char* path) {
 }
 
 void main() {
-    Source* source = read_file("samples/comparison.cx");
+    Source* source = read_file("samples/conditional.cx");
     printf("Source:\n");
     printf(source->content);
     printf("\n");

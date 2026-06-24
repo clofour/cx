@@ -48,6 +48,8 @@ struct Expr {
     } value;
 };
 
+typedef struct Stmt Stmt;
+
 typedef enum {
     STMT_COND,
     STMT_VAR,
@@ -73,7 +75,7 @@ typedef struct {
     Expr* expr;
 } StmtPrint;
 
-typedef struct {
+struct Stmt {
     StmtType type;
     union {
         StmtCond cond;
@@ -81,7 +83,7 @@ typedef struct {
         StmtExpr expr;
         StmtPrint print;
     } value;
-} Stmt;
+};
 
 typedef struct {
     int current;
@@ -92,10 +94,13 @@ typedef struct {
     Stmt* statements;
     int statementsLength;
     int statementsCapacity;
+    Stmt** program;
+    int programLength;
+    int programCapacity;
 } Parser;
 
 typedef struct {
-    Stmt* statements;
+    Stmt** nodes;
     int length;
 } AST;
 

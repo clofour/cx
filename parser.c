@@ -286,6 +286,8 @@ static Expr* expression(Parser* parser) {
     return assignment(parser);
 }
 
+static Stmt* statement(Parser* parser);
+
 static Stmt* expr_statement(Parser* parser) {
     Expr* expr = expression(parser);
     consume(parser, TOKEN_SEMICOLON, "Lines must be terminated with semicolons.");
@@ -301,9 +303,9 @@ static Stmt* print_statement(Parser* parser) {
 }
 
 static Stmt* if_statement(Parser* parser) {
-    consume(parser, 1, TOKEN_LEFT_PARENTHESIS, "'(' expected after conditional.");
+    consume(parser, TOKEN_LEFT_PARENTHESIS, "'(' expected after conditional.");
     Expr* condition = expression(parser);
-    consume(parser, 1, TOKEN_LEFT_PARENTHESIS, "')' expected after conditional.");
+    consume(parser, TOKEN_RIGHT_PARENTHESIS, "')' expected after conditional.");
     Stmt* body = statement(parser);
 
     return create_stmt_if(parser, condition, body);
@@ -336,7 +338,7 @@ static Stmt* declaration(Parser* parser) {
 
 static void program(Parser* parser) {
     while (!is_at_end(parser)) {
-        declaration(parser);
+        parser->program[parser->programLength++] = declaration(parser);
     }
 }
 
@@ -350,11 +352,14 @@ AST parse(Token* tokens) {
     parser.statementsCapacity = 100;
     parser.statements = (Stmt*) malloc(sizeof(Stmt) * parser.statementsCapacity);
     parser.statementsLength = 0;
+    parser.programCapacity = 100;
+    parser.program = (Stmt**) malloc(sizeof(Stmt*) * parser.programCapacity);
+    parser.programLength = 0;
 
     program(&parser);
 
     AST ast;
-    ast.statements = parser.statements;
-    ast.length = parser.statementsLength;
+    ast.nodes = parser.program;
+    ast.length = parser.programLength;
     return ast;
 }

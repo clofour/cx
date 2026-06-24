@@ -24,6 +24,7 @@ typedef struct {
     DynamicBuffer* text;
     Variable* variables;
     int variableCount;
+    int labelCount;
 } Compiler;
 
 void compile(AST ast, char* path);
