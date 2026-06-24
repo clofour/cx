@@ -20,11 +20,10 @@ typedef struct {
 typedef struct {
     char* path;
     DynamicBuffer* data;
-    int dataCount;
     DynamicBuffer* text;
     Variable* variables;
     int variableCount;
-    int labelCount;
+    int unique_counter;
 } Compiler;
 
 void compile(AST ast, char* path);

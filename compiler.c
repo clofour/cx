@@ -48,6 +48,10 @@ static int variable_define(Compiler *compiler, char *name, ValueType type)
     return variable.offset;
 }
 
+static int allocate_label(Compiler* compiler) {
+    return compiler->unique_counter++;
+}
+
 void emit(DynamicBuffer* dynamic_buffer, char* string, int length) {
     append_dynamic_buffer(dynamic_buffer, string, length);
 }
@@ -67,16 +71,14 @@ void emit_inst(DynamicBuffer *dynamic_buffer, char *format, ...)
     va_end(args);
 }
 
-int emit_label(Compiler* compiler, char* value) {
-    int label_index = compiler->labelCount++;
-
+void emit_label(Compiler* compiler, int label_index, char* value) {
     emit_inst(compiler->text, "%s%d:", value, label_index);
 
     return label_index;
 }
 
 int emit_data(Compiler* compiler, char* value) {
-    int data_index = compiler->dataCount++;
+    int data_index = compiler->unique_counter++;
 
     emit_inst(compiler->data, "dat%d db '%s', 0xd, 0xa, 0", data_index, value);
 
@@ -114,11 +116,11 @@ ValueType compile_token(Compiler *compiler, Token *token)
             return VALUE_NUMBER;
         }
 
-
         case TOKEN_NONE: {
             printf("An error has occurred.");
             break;
         }
+
         default: {
             printf("TBD");
             break;
@@ -284,14 +286,34 @@ void compile_stmt(Compiler *compiler, Stmt *stmt_pointer)
         {
             StmtCond stmtCond = stmt.value.cond;
 
+            int end_label_index = allocate_label(compiler);
+
             compile_expr(compiler, stmtCond.condition);
             emit_inst(compiler->text, "cmp rax, 0");
-            emit_inst(compiler->text, "je end%d", compiler->labelCount);
+            emit_inst(compiler->text, "je end%d", end_label_index);
             
             compile_stmt(compiler, stmtCond.body);
-            int label_index = emit_label(compiler, "end");
+            emit_label(compiler, end_label_index, "end");
 
             break;
+        }
+
+        case STMT_LOOP:
+        {
+            StmtLoop stmtLoop = stmt.value.loop;
+
+            int body_label_index = allocate_label(compiler);
+            int test_label_index = allocate_label(compiler);
+
+            emit_inst(compiler->text, "jmp test%d", test_label_index);
+
+            emit_label(compiler, body_label_index, "body");
+            compile_stmt(compiler, stmtLoop.body);
+
+            emit_label(compiler, test_label_index, "test");
+            compile_expr(compiler, stmtLoop.condition);
+            emit_inst(compiler->text, "cmp rax, 0");
+            emit_inst(compiler->text, "je body%d", body_label_index);
         }
 
         case STMT_VAR:
@@ -348,10 +370,9 @@ void compile(AST ast, char *path)
     Compiler compiler;
     compiler.path = path;
     compiler.data = create_dynamic_buffer(100);
-    compiler.dataCount = 0;
     compiler.text = create_dynamic_buffer(100);
     compiler.variables = malloc(sizeof(Variable) * 256);
-    compiler.variableCount = 0;
+    compiler.unique_counter = 0;
 
     Compiler *compiler_pointer = &compiler;
 
