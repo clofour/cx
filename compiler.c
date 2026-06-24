@@ -124,7 +124,7 @@ ValueType compile_expr(Compiler *compiler, Expr *expr_pointer)
             ValueType value = compile_expr(compiler, assign_expr.value);
 
             char *variable_name = assign_expr.name->value.identifier_value;
-            Symbol variable = symbol_lookup(compiler, variable_name);
+            Symbol variable = symbol_lookup(compiler->symbol_table, variable_name);
             emit_inst(compiler->text, "mov [rbp-%d], rax", variable.offset);
 
             return VALUE_NONE;
@@ -291,6 +291,18 @@ void compile_stmt(Compiler *compiler, Stmt *stmt_pointer)
             emit_inst(compiler->text, "je body%d", body_label_index);
         }
 
+        case STMT_BLOCK:
+        {
+            StmtBlock stmt_block = stmt.value.block;
+
+            enter_scope(compiler->symbol_table);
+            for (int i = 0; i < stmt_block.length; i++)
+            {
+                compile_stmt(compiler, &stmt_block.statements[i]);
+            }
+            exit_scope(compiler->symbol_table);
+        }
+
         case STMT_VAR:
         {
             StmtVar stmt_var = stmt.value.var;
@@ -298,7 +310,7 @@ void compile_stmt(Compiler *compiler, Stmt *stmt_pointer)
             ValueType value = compile_expr(compiler, stmt_var.expr);
 
             char *variable_name = stmt_var.name->value.identifier_value;
-            int offset = variable_define(compiler, variable_name, value);
+            int offset = symbol_define(compiler->symbol_table, variable_name, value);
             emit_inst(compiler->text, "mov [rbp-%d], rax", offset);
 
             break;
