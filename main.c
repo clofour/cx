@@ -26,7 +26,7 @@ Source* read_file(char* path) {
 }
 
 void main() {
-    Source* source = read_file("samples/while_block.cx");
+    Source* source = read_file("samples/fizzbuzz.cx");
     printf("Source:\n");
     printf(source->content);
     printf("\n");
