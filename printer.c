@@ -109,7 +109,7 @@ void print_stmt(int depth, Stmt* stmt_pointer) {
 
             print_string(depth, "print");
 
-            print_expr(depth, stmtPrint.expr);
+            print_expr(depth + 1, stmtPrint.expr);
 
             break;
 
