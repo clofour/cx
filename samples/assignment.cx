@@ -1,0 +1,6 @@
+var myVar = 3;
+var myVar2 = 9;
+print myVar + myVar2;
+myVar2 = 3;
+myVar = myVar2 + myVar;
+print myVar;

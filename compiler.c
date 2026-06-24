@@ -47,6 +47,14 @@ void emit_inst(DynamicBuffer *dynamic_buffer, char *format, ...)
     va_end(args);
 }
 
+int emit_data(Compiler* compiler, char* value) {
+    int data_index = compiler->dataCount++;
+
+    emit_inst(compiler->data, "dat%d db '%s', 0xd, 0xa, 0", data_index, value);
+
+    return data_index;
+}
+
 ValueType compile_token(Compiler *compiler, Token *token)
 {
     TokenType type = token->type;
@@ -64,8 +72,8 @@ ValueType compile_token(Compiler *compiler, Token *token)
 
         char *string_value = token->value.string_value;
 
-        emit_inst(compiler->data, "msg db '%s', 0xd, 0xa, 0", string_value);
-        emit_inst(compiler->text, "lea rax, [msg]");
+        int data_index = emit_data(compiler, string_value);
+        emit_inst(compiler->text, "lea rax, [dat%d]", data_index);
 
         return VALUE_STRING;
 
@@ -181,16 +189,18 @@ void compile_stmt(Compiler *compiler, Stmt *stmt_pointer)
 
         ValueType value = compile_expr(compiler, stmtPrint.expr);
         emit_inst(compiler->text, "mov rdx, rax");
+
+        int data_index;
         switch (value)
         {
         case VALUE_NUMBER:
-            emit_inst(compiler->data, "format_string db '%s', 0xd, 0xa, 0", "%d");
+            data_index = emit_data(compiler, "%d");
             break;
         case VALUE_STRING:
-            emit_inst(compiler->data, "format_string db '%s', 0xd, 0xa, 0", "%s");
+            data_index = emit_data(compiler, "%s");
             break;
         }
-        emit_inst(compiler->text, "lea rcx, [format_string]");
+        emit_inst(compiler->text, "lea rcx, [dat%d]", data_index);
         emit_inst(compiler->text, "call printf");
 
         break;
@@ -245,6 +255,7 @@ void compile(AST ast, char *path)
     Compiler compiler;
     compiler.path = path;
     compiler.data = create_dynamic_buffer(100);
+    compiler.dataCount = 0;
     compiler.text = create_dynamic_buffer(100);
     compiler.variables = malloc(sizeof(Variable) * 256);
     compiler.variableCount = 0;

@@ -19,6 +19,7 @@ typedef struct {
 typedef struct {
     char* path;
     DynamicBuffer* data;
+    int dataCount;
     DynamicBuffer* text;
     Variable* variables;
     int variableCount;
