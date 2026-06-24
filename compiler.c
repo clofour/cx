@@ -5,6 +5,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <stdbool.h>
+
+static bool compare(TokenType reference, int count, ...) {
+    va_list args;
+    va_start(args, count);
+
+    for (int i = 0; i < count; i++) {
+        if (reference == args[i]) return true;
+    }
+
+    va_end(args);
+}
 
 static Variable variable_lookup(Compiler *compiler, char *name)
 {
@@ -129,22 +141,59 @@ ValueType compile_expr(Compiler *compiler, Expr *expr_pointer)
         ValueType leftValue = compile_expr(compiler, binaryExpr.leftExpr);
         emit_inst(compiler->text, "pop rcx");
 
-        switch (binaryExpr.operator->type)
-        {
-        case TOKEN_PLUS:
-            emit_inst(compiler->text, "add rax, rcx");
-            break;
-        case TOKEN_MINUS:
-            emit_inst(compiler->text, "sub rax, rcx");
-            break;
-        case TOKEN_STAR:
-            emit_inst(compiler->text, "imul rax, rcx");
-            break;
-        case TOKEN_SLASH:
-            emit_inst(compiler->text, "cqo");
-            emit_inst(compiler->text, "idiv rcx");
-            break;
+        TokenType operator = binaryExpr.operator->type;
+
+        if (compare(operator, 4, TOKEN_PLUS, TOKEN_MINUS, TOKEN_STAR, TOKEN_SLASH)) {
+            switch (operator)
+            {
+                case TOKEN_PLUS:
+                    emit_inst(compiler->text, "add rax, rcx");
+                    break;
+                case TOKEN_MINUS:
+                    emit_inst(compiler->text, "sub rax, rcx");
+                    break;
+                case TOKEN_STAR:
+                    emit_inst(compiler->text, "imul rax, rcx");
+                    break;
+                case TOKEN_SLASH:
+                    emit_inst(compiler->text, "cqo");
+                    emit_inst(compiler->text, "idiv rcx");
+                    break;
+                case TOKEN_EQUAL_EQUAL:
+                    emit_inst(compiler->text, "cmp rax, rbx");
+                    emit_inst(compiler->text, "sete al");
+
+            }
         }
+
+        if (compare(operator, 6, TOKEN_EQUAL_EQUAL, TOKEN_BANG_EQUAL, TOKEN_LESS, TOKEN_LESS_EQUAL, TOKEN_GREATER, TOKEN_GREATER_EQUAL)) {
+            emit_inst(compiler->text, "cmp rax, rbx");
+            
+            switch (operator)
+            {
+                case TOKEN_EQUAL_EQUAL:
+                    emit_inst(compiler->text, "sete al");
+                    break;
+                case TOKEN_BANG_EQUAL:
+                    emit_inst(compiler->text, "setne al");
+                    break;
+                case TOKEN_LESS:
+                    emit_inst(compiler->text, "setl al");
+                    break;
+                case TOKEN_LESS_EQUAL:
+                    emit_inst(compiler->text, "setle al");
+                    break;
+                case TOKEN_GREATER:
+                    emit_inst(compiler->text, "setg al");
+                    break;
+                case TOKEN_GREATER_EQUAL:
+                    emit_inst(compiler->text, "setge al");
+                    break;
+            }
+
+            emit_inst(compiler->text, "movzx eax, al");
+        }
+
 
         return rightValue == leftValue && rightValue;
     }
