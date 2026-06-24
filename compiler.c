@@ -6,6 +6,27 @@
 #include <string.h>
 #include <stdarg.h>
 
+static int variable_lookup(Compiler* compiler, char* name) {
+    for (int i = 0; i < compiler->variableCount; i++) {
+        Variable variable = compiler->variables[i];
+        if (strcmp(name, variable.name) == 0) {
+            return variable.offset;
+        }
+    }
+
+    return 0;
+}
+
+static int variable_define(Compiler* compiler, char* name) {
+    Variable variable;
+    variable.name = name;
+    variable.offset = 8 * (compiler->variableCount + 1);
+
+    compiler->variables[compiler->variableCount] = variable;
+
+    return variable.offset;
+}
+
 void emit_inst(DynamicBuffer* dynamic_buffer, char* format, ...) {
     va_list args;
     va_start(args, format);
@@ -135,8 +156,10 @@ void compile_stmt(Compiler* compiler, Stmt* stmt_pointer) {
         case STMT_VAR:
             StmtVar stmtVar = stmt.value.var;
 
-            compile_token(compiler, stmtVar.name);
+            int offset = variable_define(compiler, "hello");
+
             compile_expr(compiler, stmtVar.expr);
+            emit_inst(compiler->text, "mov [rbp-%d], rax", offset);
 
             break;
     }
@@ -179,10 +202,12 @@ void compile(AST ast, char* path) {
     compiler.path = path;
     compiler.data = create_dynamic_buffer(100);
     compiler.text = create_dynamic_buffer(100);
+    compiler.variables = malloc(sizeof(Variable) * 256);
+    compiler.variableCount = 0;
 
     Compiler* compiler_pointer = &compiler;
 
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < ast.length; i++) {
         compile_stmt(compiler_pointer, &ast.statements[i]);
     }
 

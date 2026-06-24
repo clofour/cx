@@ -11,9 +11,16 @@ typedef enum {
 } ValueType;
 
 typedef struct {
+    char* name;
+    int offset;
+} Variable;
+
+typedef struct {
     char* path;
     DynamicBuffer* data;
     DynamicBuffer* text;
+    Variable* variables;
+    int variableCount;
 } Compiler;
 
 void compile(AST ast, char* path);
