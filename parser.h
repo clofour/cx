@@ -60,7 +60,7 @@ typedef enum {
 } StmtType;
 
 typedef struct {
-    Stmt* statements;
+    Stmt** statements;
     int length;
 } StmtBlock;
 

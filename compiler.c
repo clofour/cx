@@ -289,6 +289,8 @@ void compile_stmt(Compiler *compiler, Stmt *stmt_pointer)
             compile_expr(compiler, stmt_loop.condition);
             emit_inst(compiler->text, "cmp rax, 0");
             emit_inst(compiler->text, "je body%d", body_label_index);
+
+            break;
         }
 
         case STMT_BLOCK:
@@ -298,9 +300,11 @@ void compile_stmt(Compiler *compiler, Stmt *stmt_pointer)
             enter_scope(compiler->symbol_table);
             for (int i = 0; i < stmt_block.length; i++)
             {
-                compile_stmt(compiler, &stmt_block.statements[i]);
+                compile_stmt(compiler, stmt_block.statements[i]);
             }
             exit_scope(compiler->symbol_table);
+
+            break;
         }
 
         case STMT_VAR:
