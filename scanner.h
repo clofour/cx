@@ -78,13 +78,13 @@ typedef struct
 
 typedef struct {
     char* source;
-    int sourceLength;
+    int source_length;
     int line;
     int start;
     int current;
     Token* tokens;
-    int tokenCapacity;
-    int tokenCount;
+    int token_capacity;
+    int token_count;
 } Scanner;
 
 Token* scan(Source* source);

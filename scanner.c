@@ -27,7 +27,7 @@ static char* substring(Scanner *scanner, int start, int end) {
 }
 
 static bool is_at_end(Scanner *scanner) {
-    return scanner->current >= scanner->sourceLength;
+    return scanner->current >= scanner->source_length;
 }
 
 static char advance(Scanner *scanner) {
@@ -50,7 +50,7 @@ static char peek(Scanner *scanner) {
 }
 
 static char peek_next(Scanner *scanner) {
-    if (scanner->current + 1 >= scanner->sourceLength) return '\0';
+    if (scanner->current + 1 >= scanner->source_length) return '\0';
     return scanner->source[scanner->current + 1];
 }
 
@@ -61,9 +61,9 @@ static Token* add_token(Scanner *scanner, TokenType type) {
     token.start = &(scanner->source[scanner->start]);
     token.length = scanner->current - scanner->start;
 
-    scanner->tokens[scanner->tokenCount++] = token;
+    scanner->tokens[scanner->token_count++] = token;
 
-    return &scanner->tokens[scanner->tokenCount - 1];
+    return &scanner->tokens[scanner->token_count - 1];
 }
 
 static Token* number(Scanner *scanner) {
@@ -73,11 +73,11 @@ static Token* number(Scanner *scanner) {
 
     while (isdigit(peek(scanner))) advance(scanner);
 
-    char* stringValue = substring(scanner, scanner->start, scanner->current);
-    char* numberValue;
+    char* string_value = substring(scanner, scanner->start, scanner->current);
+    char* number_value;
     Token* token = add_token(scanner, TOKEN_NUMBER);
-    token->value.float_value = strtod(stringValue, &numberValue);
-    free(stringValue);
+    token->value.float_value = strtod(string_value, &number_value);
+    free(string_value);
 
     return token;
 }
@@ -170,12 +170,12 @@ static Token* scan_token(Scanner *scanner) {
 Token* scan(Source* source) {
     Scanner scanner;
     scanner.source = source->content;
-    scanner.sourceLength = source->length;
+    scanner.source_length = source->length;
     scanner.line =  1;
     scanner.current = 0;
-    scanner.tokenCapacity = 100;
-    scanner.tokens = (Token*) malloc(sizeof(Token) * scanner.tokenCapacity);
-    scanner.tokenCount = 0;
+    scanner.token_capacity = 100;
+    scanner.tokens = (Token*) malloc(sizeof(Token) * scanner.token_capacity);
+    scanner.token_count = 0;
 
     Scanner *scanner_pointer = &scanner;
 
@@ -183,9 +183,9 @@ Token* scan(Source* source) {
         scanner.start = scanner.current;
         scan_token(scanner_pointer);
 
-        if (scanner.tokenCount > scanner.tokenCapacity - 10) {
-            scanner.tokenCapacity = scanner.tokenCapacity * 2;
-            scanner.tokens = realloc(scanner.tokens, sizeof(Token) * scanner.tokenCapacity);
+        if (scanner.token_count > scanner.token_capacity - 10) {
+            scanner.token_capacity = scanner.token_capacity * 2;
+            scanner.tokens = realloc(scanner.tokens, sizeof(Token) * scanner.token_capacity);
         }
     }
     add_token(scanner_pointer, TOKEN_EOF);
