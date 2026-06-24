@@ -16,10 +16,11 @@ void emit_inst(DynamicBuffer* dynamic_buffer, char* format, ...) {
     int length = vsnprintf(buffer + 2, 128 - 3, format, args);
     strcat(buffer, "\n");
     append_dynamic_buffer(dynamic_buffer, buffer, length + 3);
+
     va_end(args);
 }
 
-void compile_token(Compiler* compiler, Token* token) {
+ValueType compile_token(Compiler* compiler, Token* token) {
     TokenType type = token->type;
     switch (type) {
         case TOKEN_IDENTIFIER:
@@ -28,11 +29,12 @@ void compile_token(Compiler* compiler, Token* token) {
         case TOKEN_STRING:
             char* string_value = token->value.string_value;
             emit_inst(compiler->data, "msg db '%s', 0xd, 0xa, 0\n", string_value);
-            break;
+            emit_inst(compiler->text, "lea rax, [msg]");
+            return VALUE_STRING;
         case TOKEN_NUMBER:
             int number_value = token->value.float_value;
             emit_inst(compiler->text, "mov rax, %d", number_value);
-            break;
+            return VALUE_NUMBER;
         case TOKEN_PLUS: printf("+"); break;
         case TOKEN_MINUS: printf("-"); break;
         case TOKEN_SLASH: printf("/"); break;
@@ -40,11 +42,9 @@ void compile_token(Compiler* compiler, Token* token) {
         case TOKEN_NONE: printf("An error has occurred."); break;
         default: printf("TBD"); break;
     }
-
-   printf("\n");
 }
 
-void compile_expr(Compiler* compiler, Expr* expr_pointer) {
+ValueType compile_expr(Compiler* compiler, Expr* expr_pointer) {
     Expr expr = *expr_pointer;
 
     switch (expr.type) {
@@ -53,39 +53,54 @@ void compile_expr(Compiler* compiler, Expr* expr_pointer) {
 
             compile_token(compiler, varExpr.name);
 
-            return;
+            return VALUE_NONE;
 
         case EXPR_ASSIGN:
             AssignExpr assignExpr = expr.value.assign;
 
             compile_token(compiler, assignExpr.name);
-            print_expr(compiler, assignExpr.value);
+            compile_expr(compiler, assignExpr.value);
 
-            return;
+            return VALUE_NONE;
 
         case EXPR_BINARY:
             BinaryExpr binaryExpr = expr.value.binary;
 
-            compile_token(compiler, binaryExpr.operator);
+            ValueType rightValue = compile_expr(compiler, binaryExpr.rightExpr);
+            emit_inst(compiler->text, "push rax");
+            ValueType leftValue = compile_expr(compiler, binaryExpr.leftExpr);
+            emit_inst(compiler->text, "pop rcx");
 
-            print_expr(compiler, binaryExpr.leftExpr);
-            print_expr(compiler, binaryExpr.rightExpr);
+            switch (binaryExpr.operator->type) {
+                case TOKEN_PLUS:
+                    emit_inst(compiler->text, "add rax, rcx");
+                    break;
+                case TOKEN_MINUS:
+                    emit_inst(compiler->text, "sub rax, rcx");
+                    break;
+                case TOKEN_STAR:
+                    emit_inst(compiler->text, "imul rax, rcx");
+                    break;
+                case TOKEN_SLASH:
+                    emit_inst(compiler->text, "cqo");
+                    emit_inst(compiler->text, "idiv rcx");
+                    break;
+            }
 
-            return;
+            return rightValue == leftValue && rightValue;
 
         case EXPR_UNARY:
             UnaryExpr unaryExpr = expr.value.unary;
 
-            compile_token(compiler, unaryExpr.operator);
-            print_expr(compiler, unaryExpr.expr);
+            ValueType value = compile_token(compiler, unaryExpr.operator);
+            compile_expr(compiler, unaryExpr.expr);
             
-            return;
+            return value;
 
         case EXPR_PRIMARY:
             PrimaryExpr primaryExpr = expr.value.primary;
 
-            compile_token(compiler, primaryExpr.value);
-            return;
+            return compile_token(compiler, primaryExpr.value);
     }
 }
 
@@ -102,8 +117,17 @@ void compile_stmt(Compiler* compiler, Stmt* stmt_pointer) {
         case STMT_PRINT:
             StmtPrint stmtPrint = stmt.value.print;
 
-            compile_expr(compiler, stmtPrint.expr);
-            emit_inst(compiler->text, "lea rcx, [msg]");
+            ValueType value = compile_expr(compiler, stmtPrint.expr);
+            emit_inst(compiler->text, "mov rdx, rax");
+            switch (value) {
+                case VALUE_NUMBER:
+                    emit_inst(compiler->data, "format_string db '%s', 0xd, 0xa, 0\n", "%d");
+                    break;
+                case VALUE_STRING:
+                    emit_inst(compiler->data, "format_string db '%s', 0xd, 0xa, 0\n", "%s");
+                    break;
+            }
+            emit_inst(compiler->text, "lea rcx, [format_string]");
             emit_inst(compiler->text, "call printf");
 
             break;
@@ -112,7 +136,7 @@ void compile_stmt(Compiler* compiler, Stmt* stmt_pointer) {
             StmtVar stmtVar = stmt.value.var;
 
             compile_token(compiler, stmtVar.name);
-            print_expr(compiler, stmtVar.expr);
+            compile_expr(compiler, stmtVar.expr);
 
             break;
     }
@@ -128,7 +152,7 @@ void write_asm(Compiler* compiler) {
     fprintf(file_pointer,
         "segment .data\n"
     );
-    fprintf(file_pointer, compiler->data->buffer);
+    fprintf(file_pointer, "%s", compiler->data->buffer);
 
     fprintf(file_pointer,
         "segment .text\n"
@@ -143,7 +167,7 @@ void write_asm(Compiler* compiler) {
         "  mov rbp, rsp\n"
         "  sub rsp, 32\n"
     );
-    fprintf(file_pointer, compiler->text->buffer);
+    fprintf(file_pointer, "%s", compiler->text->buffer);
     fprintf(file_pointer,
         "  xor rax, rax\n"
         "  call ExitProcess\n"

@@ -4,6 +4,12 @@
 #include "parser.h"
 #include "dynamic_buffer.h"
 
+typedef enum {
+    VALUE_NONE,
+    VALUE_NUMBER,
+    VALUE_STRING
+} ValueType;
+
 typedef struct {
     char* path;
     DynamicBuffer* data;

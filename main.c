@@ -26,7 +26,7 @@ Source* read_file(char* path) {
 }
 
 void main() {
-    Source* source = read_file("samples/basic.cx");
+    Source* source = read_file("samples/complex_arithmetic.cx");
     printf("Source:\n");
     printf(source->content);
     printf("\n");
@@ -38,5 +38,5 @@ void main() {
     printf("AST:\n");
     print(ast);
 
-    compile(ast, "outputs/basic.asm");
+    compile(ast, "outputs/output.asm");
 }
