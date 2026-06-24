@@ -288,7 +288,7 @@ void compile_stmt(Compiler *compiler, Stmt *stmt_pointer)
             emit_label(compiler, test_label_index, "test");
             compile_expr(compiler, stmt_loop.condition);
             emit_inst(compiler->text, "cmp rax, 0");
-            emit_inst(compiler->text, "je body%d", body_label_index);
+            emit_inst(compiler->text, "jne body%d", body_label_index);
 
             break;
         }
