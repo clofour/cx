@@ -20,6 +20,7 @@ typedef enum TokenType
     TOKEN_PLUS,
     TOKEN_SEMICOLON,
     TOKEN_SLASH,
+    TOKEN_MODULO,
     TOKEN_STAR,
 
     TOKEN_BANG,

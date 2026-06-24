@@ -130,6 +130,7 @@ static Token* scan_token(Scanner *scanner) {
                 return add_token(scanner, TOKEN_SLASH);
             }
             break;
+        case '%': return add_token(scanner, TOKEN_MODULO);
         case '*': return add_token(scanner, TOKEN_STAR);
         case '!': return add_token(scanner, match(scanner, '=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
         case '=': return add_token(scanner, match(scanner, '=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);

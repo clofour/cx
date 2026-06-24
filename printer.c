@@ -41,6 +41,7 @@ void print_token(int depth, Token* token) {
         case TOKEN_PLUS: printf("+"); break;
         case TOKEN_MINUS: printf("-"); break;
         case TOKEN_SLASH: printf("/"); break;
+        case TOKEN_MODULO: printf("%"); break;
         case TOKEN_STAR: printf("*"); break;
         case TOKEN_EQUAL_EQUAL: printf("=="); break;
         case TOKEN_BANG_EQUAL: printf("!="); break;

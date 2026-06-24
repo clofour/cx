@@ -244,7 +244,7 @@ static Expr* unary(Parser* parser) {
 static Expr* factor(Parser* parser) {
     Expr* expr = unary(parser);
 
-    while (match(parser, 2, TOKEN_SLASH, TOKEN_STAR)) {
+    while (match(parser, 3, TOKEN_SLASH, TOKEN_MODULO, TOKEN_STAR)) {
         Token* operator = previous(parser);
         Expr* right = unary(parser);
         expr = create_binary_expr(parser, expr, operator, right);

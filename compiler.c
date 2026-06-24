@@ -141,7 +141,7 @@ ValueType compile_expr(Compiler *compiler, Expr *expr_pointer)
 
             TokenType operator = binary_expr.operator->type;
 
-            if (compare(operator, 4, TOKEN_PLUS, TOKEN_MINUS, TOKEN_STAR, TOKEN_SLASH)) {
+            if (compare(operator, 5, TOKEN_PLUS, TOKEN_MINUS, TOKEN_STAR, TOKEN_SLASH, TOKEN_MODULO)) {
                 switch (operator)
                 {
                     case TOKEN_PLUS:
@@ -157,9 +157,10 @@ ValueType compile_expr(Compiler *compiler, Expr *expr_pointer)
                         emit_inst(compiler->text, "cqo");
                         emit_inst(compiler->text, "idiv rcx");
                         break;
-                    case TOKEN_EQUAL_EQUAL:
-                        emit_inst(compiler->text, "cmp rax, rbx");
-                        emit_inst(compiler->text, "sete al");
+                    case TOKEN_MODULO:
+                        emit_inst(compiler->text, "cqo");
+                        emit_inst(compiler->text, "idiv rcx");
+                        emit_inst(compiler->text, "mov rax, rdx");
 
                 }
 
