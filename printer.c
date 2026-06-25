@@ -105,6 +105,35 @@ void print_stmt(int depth, Stmt* stmt_pointer) {
     Stmt stmt = *stmt_pointer;
 
     switch(stmt.type) {
+        case STMT_BLOCK:
+            StmtBlock stmt_block = stmt.value.block;
+
+            for (int i = 0; i < stmt_block.length; i++) {
+                print_stmt(depth, stmt_block.statements[i]);
+            }
+
+            break;
+
+        case STMT_COND:
+            StmtCond stmt_cond = stmt.value.cond;
+
+            print_string(depth, "if");
+
+            print_expr(depth + 1, stmt_cond.condition);
+            print_stmt(depth + 1, stmt_cond.body);
+
+            break;
+
+        case STMT_LOOP:
+            StmtLoop stmt_loop = stmt.value.loop;
+
+            print_string(depth, "while");
+
+            print_expr(depth + 1, stmt_loop.condition);
+            print_stmt(depth + 1, stmt_loop.body);
+
+            break;
+
         case STMT_EXPR:
             StmtExpr stmt_expr = stmt.value.expr;
             print_expr(depth, stmt_expr.expr);
