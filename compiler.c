@@ -9,38 +9,6 @@
 #include <stdarg.h>
 #include <stdbool.h>
 
-static Symbol* lookup_symbol_token(Compiler* compiler, Token* token) {
-    if (token->type != TOKEN_IDENTIFIER) {
-        error_token(compiler->shared_data->reporter, token, "Unexpected token type");
-    }
-
-    Symbol* symbol = symbol_lookup(compiler->symbol_table, token->value.identifier_value);
-    if (symbol != NULL) {
-        return symbol;
-    } else {
-        error_token(compiler->shared_data->reporter, token, "Unrecognized symbol.");
-    }
-}
-
-static bool compare(TokenType reference, int count, ...) {
-    va_list args;
-    va_start(args, count);
-
-    for (int i = 0; i < count; i++) {
-        if (reference == va_arg(args, TokenType)) {
-            va_end(args);
-            return true;
-        }
-    }
-
-    va_end(args);
-    return false;
-}
-
-static int allocate_label(Compiler* compiler) {
-    return compiler->unique_counter++;
-}
-
 void emit(DynamicBuffer* dynamic_buffer, char* string, int length) {
     dynamic_buffer_append(dynamic_buffer, string, length);
 }
@@ -75,6 +43,38 @@ int emit_data(Compiler* compiler, char* value, bool new_line) {
     
 
     return data_index;
+}
+
+static Symbol* lookup_symbol_token(Compiler* compiler, Token* token) {
+    if (token->type != TOKEN_IDENTIFIER) {
+        error_token(compiler->shared_data->reporter, token, "Unexpected token type");
+    }
+
+    Symbol* symbol = symbol_lookup(compiler->symbol_table, token->value.identifier_value);
+    if (symbol != NULL) {
+        return symbol;
+    } else {
+        error_token(compiler->shared_data->reporter, token, "Unrecognized symbol.");
+    }
+}
+
+static bool compare(TokenType reference, int count, ...) {
+    va_list args;
+    va_start(args, count);
+
+    for (int i = 0; i < count; i++) {
+        if (reference == va_arg(args, TokenType)) {
+            va_end(args);
+            return true;
+        }
+    }
+
+    va_end(args);
+    return false;
+}
+
+static int allocate_label(Compiler* compiler) {
+    return compiler->unique_counter++;
 }
 
 ValueType compile_token(Compiler *compiler, Token *token)
