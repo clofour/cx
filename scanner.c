@@ -195,5 +195,7 @@ Token* scan(Source* source) {
     }
     add_token(scanner_pointer, TOKEN_EOF);
 
+    success("Complete!");
+
     return scanner.tokens;
 }

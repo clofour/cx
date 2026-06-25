@@ -8,15 +8,16 @@
 void color_output(Color color, bool state) {
 
     if (state == true) {
+
         switch (color) {
-            case COLOR_RED:
-                printf("%s", "\033[31m");
+            case COLOR_RED: printf("%s", "\033[31m"); break;
+            case COLOR_GREEN: printf("%s", "\033[32m"); break;
         }
+
     } else {
-        switch (color) {
-            case COLOR_RED:
-                printf("%s", "\033[0m");
-        }
+
+        printf("%s", "\033[0m");
+
     }
 
 }
@@ -28,6 +29,7 @@ void feedback(FeedbackType feedback_type, char* format, ...) {
     Color color;
     switch (feedback_type) {
         case FEEDBACK_ERROR: color = COLOR_RED;
+        case FEEDBACK_SUCCESS: color = COLOR_GREEN;
     }
 
     color_output(color, true);
@@ -49,4 +51,8 @@ void error_token(Token* token, char* message) {
 
 void error_line(int line, char* message) {
     feedback(FEEDBACK_ERROR, "%s:%d: error: %s\n", "hello", line, message);
+}
+
+void success(char* message) {
+    feedback(FEEDBACK_SUCCESS, "%s: success: %s\n", "hello", message);
 }

@@ -410,6 +410,8 @@ AST parse(Token* tokens) {
 
     program(&parser);
 
+    success("Complete!");
+
     AST ast;
     ast.nodes = parser.program;
     ast.length = parser.program_length;

@@ -164,4 +164,6 @@ void print(AST ast) {
     for (int i = 0; i < ast.length; i++) {
         print_stmt(0, ast.nodes[i]);
     }
+    
+    success("Complete!");
 }

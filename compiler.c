@@ -389,4 +389,6 @@ void compile(AST ast, char *path)
     }
 
     write_asm(compiler_pointer);
+
+    success("Complete!");
 }
