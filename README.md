@@ -2,6 +2,16 @@
 
 cx is a small programming language written in C (my first time!). It contains a scanner, parser, printer and Windows x64 code generator. Currently, it only supports small programs as it uses fixed-size arrays of 100 items for almost everything, for simplicity reasons.
 
+```mermaid
+graph LR
+    A["Source File"] -- "Reader" --> B["Buffer"]
+    B -- "Scanner" --> C["Tokens"]
+    C -- "Parser" --> D["AST"]
+    D -- "Compiler" --> E["Assembly File"]
+    E -- NASM --> F["Object File"]
+    F -- MSVC Link --> H["Portable Executable"]
+```
+
 ## Quick Start
 
 To use cx, you will need to:
@@ -121,3 +131,6 @@ while (x < 10) {
     print x;
 }
 ```
+
+## Images
+
