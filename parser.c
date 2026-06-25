@@ -351,6 +351,8 @@ static Stmt* while_statement(Parser* parser) {
 
 static Stmt* block_statement(Parser* parser) {
     Stmt** statements = (Stmt**) malloc(sizeof(Stmt*) * 100);
+    parser->blocks[parser->blocks_length++] = statements;
+
     int length = 0;
 
     while (!check(parser, TOKEN_RIGHT_BRACE) && !is_at_end(parser)) {
@@ -405,6 +407,9 @@ Parser parser_create(Token* tokens) {
     parser.statements_capacity = 100;
     parser.statements = (Stmt*) malloc(sizeof(Stmt) * parser.statements_capacity);
     parser.statements_length = 0;
+    parser.blocks_capacity = 100;
+    parser.blocks = (Stmt***) malloc(sizeof(Stmt**) * parser.blocks_capacity);
+    parser.blocks_length = 0;
     parser.program_capacity = 100;
     parser.program = (Stmt**) malloc(sizeof(Stmt*) * parser.program_capacity);
     parser.program_length = 0;
@@ -414,7 +419,14 @@ Parser parser_create(Token* tokens) {
 
 void parser_free(Parser* parser) {
     free(parser->expressions);
+
     free(parser->statements);
+
+    for (int i = 0; i < parser->blocks_length; i++) {
+        free(parser->blocks[i]);
+    }
+    free(parser->blocks);
+
     free(parser->program);
 }
 

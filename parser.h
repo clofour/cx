@@ -108,6 +108,9 @@ typedef struct {
     Stmt* statements;
     int statements_length;
     int statements_capacity;
+    Stmt*** blocks;
+    int blocks_length;
+    int blocks_capacity;
     Stmt** program;
     int program_length;
     int program_capacity;
