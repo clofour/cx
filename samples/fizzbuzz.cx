@@ -1,11 +1,11 @@
 var i = 0;
-var target = 10;
+var target = 100;
 while (i < target) {
     i = i + 1;
 
     print i;
 
-    if (i % 15) {
+    if (i % 15 == 0) {
         print "FizzBuzz";
     }
     else {
