@@ -1,7 +1,7 @@
-#include "parser.h"
-
 #ifndef PRINTER_H
 #define PRINTER_H
+
+#include "parser.h"
 
 typedef struct {
     int depth;
