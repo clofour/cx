@@ -15,4 +15,88 @@ Afterwards, you can optionally assemble the assembly files into portable executa
 
 ## Knowledge Base
 
-### Syntax
+### Grammar
+
+
+#### Print
+
+`print` is the only implementation of IO in cx. It can be used to display the results of operations.
+```
+print "Hello World!";
+```
+
+#### Arithmetic
+
+Five arithmetic operations are supported in cx:
+| Symbol | Operation |
+|---|---|
+|+|Addition|
+|-|Subtraction|
+|*|Multiplication|
+|/|Division|
+|%|Modulo|
+
+```
+print 1 + 2 - 3 * 4 / 5 % 6;
+```
+
+#### Variables
+
+Variables can be used for storing the results of operations, allowing for more complex programs. The contents of variables can be changed after initialization via assignment. Variable names can be composed of alphanumeric characters, except for the first letter, which must always be a letter.
+
+```
+var x = 1;
+print x;
+```
+```
+var x = 1;
+x = 2;
+print x;
+```
+
+#### Blocks
+
+Blocks can be used to enter a new scope, allowing for variables to be redefined. They are commonly used in conjunction with conditional statements and loop statements as they allow for multiple statements.
+```
+var x = 1;
+
+while (x < 10) {
+    x = x + 1;
+    print x;
+}
+```
+
+#### Conditional Statements
+
+Conditional statements can be used 
+```
+var x = 1;
+if (x > 1) x = 2;
+print x;
+```
+```
+var x = 1;
+var y = 2;
+
+if (x > y) { 
+    x = 2;
+    y = 3;
+}
+
+print x + y;
+```
+
+#### Loop Statements
+
+Loop statements can be used to repeat a given operation until a condition is no longer met.
+```
+var x = 1;
+while (x < 10) x = x + 1;
+```
+```
+var x = 1;
+while (x < 10) {
+    x = x + 1;
+    print x;
+}
+```
