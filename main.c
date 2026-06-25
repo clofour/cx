@@ -16,6 +16,14 @@ void print_docs() {
     );
 }
 
+void start_stage(char* name) {
+    printf("[%s] ", name);
+}
+
+void end_stage() {
+    printf("done\n");
+}
+
 Source* read_file(char* path) {
     FILE *file_pointer = fopen(path, "r");
 
@@ -44,17 +52,22 @@ void main(int argc, char* argv[]) {
     char* input_path = argv[1];
     char* output_path = argv[2];
 
+    start_stage("reader");
     Source* source = read_file(input_path);
-    printf("Source:\n");
-    printf(source->content);
-    printf("\n");
+    end_stage();
 
+    start_stage("scanner");
     Token* tokens = scan(source);
+    end_stage();
 
+    start_stage("parser");
     AST ast = parse(tokens);
+    end_stage();
 
-    printf("AST:\n");
-    print(ast);
+    // printf("AST:\n");
+    // print(ast);
 
+    start_stage("compiler");
     compile(ast, output_path);
+    end_stage();
 }
