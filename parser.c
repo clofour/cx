@@ -340,7 +340,7 @@ static Stmt* if_statement(Parser* parser) {
 
     Stmt* else_body;
     if (match(parser, 1, TOKEN_ELSE)) {
-        else_body = statement;
+        else_body = statement(parser);
     }
 
     return create_stmt_if(parser, condition, then_body, else_body);

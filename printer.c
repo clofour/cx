@@ -121,7 +121,12 @@ void print_stmt(int depth, Stmt* stmt_pointer) {
             print_string(depth, "if");
 
             print_expr(depth + 1, stmt_cond.condition);
-            print_stmt(depth + 1, stmt_cond.body);
+            print_stmt(depth + 1, stmt_cond.then_body);
+
+            if (stmt_cond.else_body != NULL) {
+                print_string(depth, "else");
+                print_stmt(depth + 1, stmt_cond.else_body);
+            }
 
             break;
 
