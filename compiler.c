@@ -196,6 +196,8 @@ ValueType compile_expr(Compiler *compiler, Expr *expr_pointer)
 
                 return VALUE_BOOL;
             }
+
+            break;
         }
 
         case EXPR_UNARY:
