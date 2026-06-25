@@ -3,6 +3,7 @@
 #include "parser.h"
 #include "printer.h"
 #include "compiler.h"
+#include "feedback.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -27,7 +28,7 @@ void end_stage() {
 Source* read_file(char* path) {
     FILE *file_pointer = fopen(path, "r");
     if (file_pointer == NULL) {
-        fprint("ERROR: File does not exist.");
+        error("File does not exist.");
         exit(EXIT_FAILURE);
     }
 

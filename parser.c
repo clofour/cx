@@ -1,5 +1,6 @@
 #include "parser.h"
 #include "scanner.h"
+#include "feedback.h"
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -293,7 +294,7 @@ static Expr* assignment(Parser* parser) {
     Expr* expr = equality(parser);
 
     if (match(parser, 1, TOKEN_EQUAL)) {
-        Token* equalSign = previous(parser);
+        Token* equal_sign = previous(parser);
         Expr* value = assignment(parser);
 
         if (expr->type == EXPR_VAR) {
@@ -302,7 +303,7 @@ static Expr* assignment(Parser* parser) {
             return create_assign_expr(parser, name, value);
         }
 
-        printf("ERROR: Invalid assignment target.");
+        error_token(equal_sign, "Invalid assignment target.");
     }
 
     return expr;

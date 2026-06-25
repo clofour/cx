@@ -2,6 +2,7 @@
 #include "parser.h"
 #include "dynamic_buffer.h"
 #include "symbol_table.h"
+#include "feedback.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -90,7 +91,7 @@ ValueType compile_token(Compiler *compiler, Token *token)
         }
 
         case TOKEN_NONE: {
-            printf("An error has occurred.");
+            error_token(token, "Unrecognized token.");
             break;
         }
 

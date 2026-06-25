@@ -1,4 +1,5 @@
 #include "shared.h"
+#include "feedback.h"
 #include "scanner.h"
 #include <ctype.h>
 #include <stdio.h>
@@ -103,7 +104,7 @@ static Token* string(Scanner *scanner) {
     }
 
     if (is_at_end(scanner) || !match(scanner, '"')) {
-        printf("ERROR: Unterminated string");
+        error_line(scanner->line, "Unterminated string.");
     }
 
     char* value = substring(scanner, scanner->start + 1, scanner->current - 1);
@@ -164,7 +165,7 @@ static Token* scan_token(Scanner *scanner) {
                 return identifier(scanner);
             }
             else {
-                printf("ERROR");
+                error_line(scanner->line, "Unrecognized character.");
             }
     }
 

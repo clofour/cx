@@ -1,6 +1,7 @@
 #include "printer.h"
 #include "scanner.h"
 #include "parser.h"
+#include "feedback.h"
 #include "shared.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,7 +50,7 @@ void print_token(int depth, Token* token) {
         case TOKEN_GREATER_EQUAL: printf(">="); break;
         case TOKEN_LESS: printf("<"); break;
         case TOKEN_LESS_EQUAL: printf("<="); break;
-        case TOKEN_NONE: printf("An error has occurred."); break;
+        case TOKEN_NONE: error_token(token, "Unrecognized token."); break;
         default: printf(keyword_lookup(type)); break;
     }
 
