@@ -102,6 +102,7 @@ struct Stmt {
 };
 
 typedef struct {
+    SharedData* shared_data;
     int current;
     Token* tokens;
     Expr* expressions;
@@ -123,7 +124,7 @@ typedef struct {
     int length;
 } AST;
 
-Parser parser_create(Token* tokens);
+Parser parser_create(SharedData* shared_data, Token* tokens);
 void parser_free(Parser* parser);
 AST parse(Parser* parser);
 

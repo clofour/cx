@@ -4,7 +4,8 @@
 #include "printer.h"
 #include "compiler.h"
 #include "keywords.h"
-#include "feedback.h"
+#include "shared_data.h"
+#include "reporter.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,20 +34,25 @@ int main(int argc, char* argv[]) {
     }
 
     char* input_path = argv[1];
+    char* input_file_name = file_get_name(input_path);
     char* output_path = argv[2];
 
+    SharedData shared_data;
+    Reporter reporter = reporter_create(input_file_name);
+    shared_data.reporter = &reporter;
+
     start_stage("reader");
-    Source source = source_create();
-    read_file(&source, input_path);
+    Source source = source_create(shared_data);
+    file_read(&shared_data, &source, input_path);
     end_stage();
 
     start_stage("scanner");
-    Scanner scanner = scanner_create(&source);
+    Scanner scanner = scanner_create(&shared_data, &source);
     Token* tokens = scan(&scanner);
     end_stage();
 
     start_stage("parser");
-    Parser parser = parser_create(tokens);
+    Parser parser = parser_create(&shared_data, tokens);
     AST ast = parse(&parser);
     end_stage();
 
@@ -54,7 +60,7 @@ int main(int argc, char* argv[]) {
     // print(ast);
 
     start_stage("compiler");
-    Compiler compiler = compiler_create(ast, output_path);
+    Compiler compiler = compiler_create(&shared_data, ast, output_path);
     compile(&compiler);
     end_stage();
 
@@ -64,7 +70,7 @@ int main(int argc, char* argv[]) {
     scanner_free(&scanner);
     source_free(&source);
     
-    success("Complete!");
+    success(&reporter, "Complete!");
 
     return EXIT_SUCCESS;
 }

@@ -6,6 +6,7 @@
 #include "symbol_table.h"
 
 typedef struct {
+    SharedData* shared_data;
     AST ast;
     char* path;
     DynamicBuffer* data;
@@ -14,7 +15,7 @@ typedef struct {
     int unique_counter;
 } Compiler;
 
-Compiler compiler_create(AST ast, char *path);
+Compiler compiler_create(SharedData* shared_data, AST ast, char *path);
 void compiler_free(Compiler* compiler);
 void compile(Compiler* compiler);
 

@@ -4,9 +4,10 @@
 #include "parser.h"
 
 typedef struct {
-    int depth;
+    SharedData* shared_data;
 } Printer;
 
-void print(AST ast);
+Printer printer_create(SharedData* shared_data);
+void print(SharedData* shared_data, AST ast);
 
 #endif

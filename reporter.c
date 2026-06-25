@@ -1,10 +1,17 @@
-#include "feedback.h"
+#include "reporter.h"
 #include "scanner.h"
 #include "parser.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdbool.h>
+
+Reporter reporter_create(char* file_name) {
+    Reporter reporter;
+    reporter.file_name = file_name;
+
+    return reporter;
+}
 
 void color_output(Color color, bool state) {
 
@@ -44,22 +51,22 @@ void feedback(FeedbackType feedback_type, char* format, ...) {
     }
 }
 
-void error(char* message) {
-    feedback(FEEDBACK_ERROR, "%s: error: %s\n", "hello", message);
+void error(Reporter* reporter, char* message) {
+    feedback(FEEDBACK_ERROR, "%s: error: %s\n", reporter->file_name, message);
 }
 
-void error_token(Token* token, char* message) {
-    feedback(FEEDBACK_ERROR, "%s:%d: error: %s\n", "hello", token->line, message);
+void error_token(Reporter* reporter, Token* token, char* message) {
+    feedback(FEEDBACK_ERROR, "%s:%d: error: %s\n", reporter->file_name, token->line, message);
 }
 
-void error_expr(Expr* expr, char* message) {
-    feedback(FEEDBACK_ERROR, "%s:%d: error: %s\n", "hello", expr->line, message);
+void error_expr(Reporter* reporter, Expr* expr, char* message) {
+    feedback(FEEDBACK_ERROR, "%s:%d: error: %s\n", reporter->file_name, expr->line, message);
 }
 
-void error_line(int line, char* message) {
-    feedback(FEEDBACK_ERROR, "%s:%d: error: %s\n", "hello", line, message);
+void error_line(Reporter* reporter, int line, char* message) {
+    feedback(FEEDBACK_ERROR, "%s:%d: error: %s\n", reporter->file_name, line, message);
 }
 
-void success(char* message) {
-    feedback(FEEDBACK_SUCCESS, "%s: success: %s\n", "hello", message);
+void success(Reporter* reporter, char* message) {
+    feedback(FEEDBACK_SUCCESS, "%s: success: %s\n", reporter->file_name, message);
 }

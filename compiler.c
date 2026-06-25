@@ -2,7 +2,7 @@
 #include "parser.h"
 #include "dynamic_buffer.h"
 #include "symbol_table.h"
-#include "feedback.h"
+#include "reporter.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,14 +11,14 @@
 
 static Symbol* lookup_symbol_token(Compiler* compiler, Token* token) {
     if (token->type != TOKEN_IDENTIFIER) {
-        error_token(token, "Unexpected token type");
+        error_token(compiler->shared_data->reporter, token, "Unexpected token type");
     }
 
     Symbol* symbol = symbol_lookup(compiler->symbol_table, token->value.identifier_value);
     if (symbol != NULL) {
         return symbol;
     } else {
-        error_token(token, "Unrecognized symbol.");
+        error_token(compiler->shared_data->reporter, token, "Unrecognized symbol.");
     }
 }
 
@@ -105,7 +105,7 @@ ValueType compile_token(Compiler *compiler, Token *token)
         case TOKEN_NONE:
         default:
         {
-            error_token(token, "Unrecognized token.");
+            error_token(compiler->shared_data->reporter, token, "Unrecognized token.");
             break;
         }
 
@@ -152,7 +152,7 @@ ValueType compile_expr(Compiler *compiler, Expr *expr_pointer)
 
             if (compare(operator_type, 5, TOKEN_PLUS, TOKEN_MINUS, TOKEN_STAR, TOKEN_SLASH, TOKEN_MODULO)) {
                 if (!(right_value == VALUE_NUMBER && left_value == VALUE_NUMBER)) {
-                    error_token(operator, "Incorrect types for arithmetic binary operation.");
+                    error_token(compiler->shared_data->reporter, operator, "Incorrect types for arithmetic binary operation.");
                 }
 
                 switch (operator_type)
@@ -210,7 +210,7 @@ ValueType compile_expr(Compiler *compiler, Expr *expr_pointer)
                 return VALUE_BOOL;
             }
 
-            error_token(operator, "Unexpected operator.");
+            error_token(compiler->shared_data->reporter, operator, "Unexpected operator.");
             break;
         }
 
@@ -281,7 +281,7 @@ void compile_stmt(Compiler *compiler, Stmt *stmt_pointer)
                     data_index = emit_data(compiler, "%d");
                     break;
                 case VALUE_NONE:
-                    error_expr(stmt_print.expr, "Unrecognized value.");
+                    error_expr(compiler->shared_data->reporter, stmt_print.expr, "Unrecognized value.");
                     break;
             }
             emit_inst(compiler->text, "lea rcx, [dat%d]", data_index);
@@ -401,8 +401,9 @@ void write_asm(Compiler *compiler)
             "  call ExitProcess\n");
 }
 
-Compiler compiler_create(AST ast, char *path) {
+Compiler compiler_create(SharedData* shared_data, AST ast, char *path) {
     Compiler compiler;
+    compiler.shared_data = shared_data;
     compiler.ast = ast;
     compiler.path = path;
     compiler.data = create_dynamic_buffer(100);
@@ -428,5 +429,5 @@ void compile(Compiler* compiler) {
 
     write_asm(compiler);
 
-    success("Complete!");
+    success(compiler->shared_data->reporter, "Complete!");
 }

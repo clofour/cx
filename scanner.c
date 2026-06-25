@@ -1,5 +1,5 @@
 #include "keywords.h"
-#include "feedback.h"
+#include "reporter.h"
 #include "scanner.h"
 #include <ctype.h>
 #include <stdio.h>
@@ -104,7 +104,7 @@ static Token* string(Scanner *scanner) {
     }
 
     if (is_at_end(scanner) || !match(scanner, '"')) {
-        error_line(scanner->line, "Unterminated string.");
+        error_line(scanner->shared_data->reporter, scanner->line, "Unterminated string.");
     }
 
     char* value = substring(scanner, scanner->start + 1, scanner->current - 1);
@@ -166,7 +166,7 @@ static Token* scan_token(Scanner *scanner) {
                 return identifier(scanner);
             }
             else {
-                error_line(scanner->line, "Unrecognized character.");
+                error_line(scanner->shared_data->reporter, scanner->line, "Unrecognized character.");
             }
 
     }
@@ -174,8 +174,9 @@ static Token* scan_token(Scanner *scanner) {
     return NULL;
 }
 
-Scanner scanner_create(Source* source) {
+Scanner scanner_create(SharedData* shared_data, Source* source) {
     Scanner scanner;
+    scanner.shared_data = shared_data;
     scanner.source = source->content;
     scanner.source_length = source->length;
     scanner.line =  1;
@@ -203,7 +204,7 @@ Token* scan(Scanner* scanner) {
     }
     add_token(scanner, TOKEN_EOF);
 
-    success("Complete!");
+    success(scanner->shared_data->reporter, "Complete!");
 
     return scanner->tokens;
 }

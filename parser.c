@@ -1,6 +1,6 @@
 #include "parser.h"
 #include "scanner.h"
-#include "feedback.h"
+#include "reporter.h"
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -205,7 +205,7 @@ static bool match(Parser* parser, int count, ...) {
 static Token* consume(Parser* parser, TokenType type, char* message) {
     if (check(parser, type)) return advance(parser);
 
-    error_line(peek(parser)->line, message);
+    error_line(parser->shared_data->reporter, get_line(parser), message);
     return NULL;
 }
 
@@ -236,7 +236,7 @@ static Expr* primary(Parser* parser) {
         return expr;
     }
 
-    error_line(get_line(parser), "Expected expression.");
+    error_line(parser->shared_data->reporter, get_line(parser), "Expected expression.");
 }
 
 static Expr* unary(Parser* parser) {
@@ -310,7 +310,7 @@ static Expr* assignment(Parser* parser) {
             return create_assign_expr(parser, name, value);
         }
 
-        error_token(equal_sign, "Invalid assignment target.");
+        error_token(parser->shared_data->reporter, equal_sign, "Invalid assignment target.");
     }
 
     return expr;
@@ -408,8 +408,9 @@ static void program(Parser* parser) {
     }
 }
 
-Parser parser_create(Token* tokens) {
+Parser parser_create(SharedData* shared_data, Token* tokens) {
     Parser parser;
+    parser.shared_data = shared_data;
     parser.current = 0;
     parser.tokens = tokens;
     parser.expressions_capacity = 100;
@@ -444,7 +445,7 @@ void parser_free(Parser* parser) {
 AST parse(Parser* parser) {
     program(parser);
 
-    success("Complete!");
+    success(parser->shared_data->reporter, "Complete!");
 
     AST ast;
     ast.nodes = parser->program;

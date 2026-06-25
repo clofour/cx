@@ -1,6 +1,7 @@
 #ifndef SCANNER_H
 #define SCANNER_H
 
+#include "shared_data.h"
 #include "reader.h"
 
 typedef enum TokenType
@@ -56,7 +57,7 @@ typedef struct {
     TokenType type;
 } Keyword;
 
-typedef struct
+typedef struct Token
 {
     TokenType type;
 
@@ -75,6 +76,7 @@ typedef struct
 } Token;
 
 typedef struct {
+    SharedData* shared_data;
     char* source;
     int source_length;
     int line;
@@ -85,7 +87,7 @@ typedef struct {
     int token_count;
 } Scanner;
 
-Scanner scanner_create(Source* source);
+Scanner scanner_create(SharedData* shared_data, Source* source);
 void scanner_free(Scanner* scanner);
 Token* scan(Scanner* scanner);
 
