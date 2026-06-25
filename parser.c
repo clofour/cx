@@ -5,15 +5,15 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-static Stmt* create_stmt(Parser* parser) {
+static Stmt* stmt_create(Parser* parser) {
     Stmt stmt = {0};
 
     parser->statements[parser->statements_length++] = stmt;
     return &parser->statements[parser->statements_length - 1];
 }
 
-static Stmt* create_stmt_expr(Parser* parser, Expr* expr) {
-    Stmt* stmt = create_stmt(parser);
+static Stmt* stmt_expr_create(Parser* parser, Expr* expr) {
+    Stmt* stmt = stmt_create(parser);
     
     stmt->type = STMT_EXPR;
 
@@ -24,8 +24,8 @@ static Stmt* create_stmt_expr(Parser* parser, Expr* expr) {
     return stmt;
 }
 
-static Stmt* create_stmt_print(Parser* parser, Expr* expr) {
-    Stmt* stmt = create_stmt(parser);
+static Stmt* stmt_print_create(Parser* parser, Expr* expr) {
+    Stmt* stmt = stmt_create(parser);
     
     stmt->type = STMT_PRINT;
 
@@ -36,8 +36,8 @@ static Stmt* create_stmt_print(Parser* parser, Expr* expr) {
     return stmt;
 }
 
-static Stmt* create_stmt_if(Parser* parser, Expr* condition, Stmt* then_body, Stmt* else_body) {
-    Stmt* stmt = create_stmt(parser);
+static Stmt* stmt_cond_create(Parser* parser, Expr* condition, Stmt* then_body, Stmt* else_body) {
+    Stmt* stmt = stmt_create(parser);
     
     stmt->type = STMT_COND;
 
@@ -50,8 +50,8 @@ static Stmt* create_stmt_if(Parser* parser, Expr* condition, Stmt* then_body, St
     return stmt;
 }
 
-static Stmt* create_stmt_while(Parser* parser, Expr* condition, Stmt* body) {
-    Stmt* stmt = create_stmt(parser);
+static Stmt* stmt_while_create(Parser* parser, Expr* condition, Stmt* body) {
+    Stmt* stmt = stmt_create(parser);
     
     stmt->type = STMT_LOOP;
 
@@ -63,8 +63,8 @@ static Stmt* create_stmt_while(Parser* parser, Expr* condition, Stmt* body) {
     return stmt;
 }
 
-static Stmt* create_stmt_block(Parser* parser, int length, Stmt** statements) {
-    Stmt* stmt = create_stmt(parser);
+static Stmt* stmt_block_create(Parser* parser, int length, Stmt** statements) {
+    Stmt* stmt = stmt_create(parser);
     
     stmt->type = STMT_BLOCK;
 
@@ -76,8 +76,8 @@ static Stmt* create_stmt_block(Parser* parser, int length, Stmt** statements) {
     return stmt;
 }
 
-static Stmt* create_stmt_var(Parser* parser, Token* name, Expr* expr) {
-    Stmt* stmt = create_stmt(parser);
+static Stmt* stmt_var_create(Parser* parser, Token* name, Expr* expr) {
+    Stmt* stmt = stmt_create(parser);
     
     stmt->type = STMT_VAR;
 
@@ -323,21 +323,21 @@ static Expr* expression(Parser* parser) {
 static Stmt* declaration(Parser* parser);
 static Stmt* statement(Parser* parser);
 
-static Stmt* expr_statement(Parser* parser) {
+static Stmt* statement_expr(Parser* parser) {
     Expr* expr = expression(parser);
     consume(parser, TOKEN_SEMICOLON, "Lines must be terminated with semicolons.");
 
-    return create_stmt_expr(parser, expr);
+    return stmt_expr_create(parser, expr);
 }
 
-static Stmt* print_statement(Parser* parser) {
+static Stmt* statement_print(Parser* parser) {
     Expr* value = expression(parser);
     consume(parser, TOKEN_SEMICOLON, "Lines must be terminated with semicolons.");
 
-    return create_stmt_print(parser, value);
+    return stmt_print_create(parser, value);
 }
 
-static Stmt* if_statement(Parser* parser) {
+static Stmt* statement_cond(Parser* parser) {
     consume(parser, TOKEN_LEFT_PARENTHESIS, "'(' expected after conditional.");
     Expr* condition = expression(parser);
     consume(parser, TOKEN_RIGHT_PARENTHESIS, "')' expected after conditional.");
@@ -348,19 +348,19 @@ static Stmt* if_statement(Parser* parser) {
         else_body = statement(parser);
     }
 
-    return create_stmt_if(parser, condition, then_body, else_body);
+    return stmt_cond_create(parser, condition, then_body, else_body);
 }
 
-static Stmt* while_statement(Parser* parser) {
+static Stmt* statement_while(Parser* parser) {
     consume(parser, TOKEN_LEFT_PARENTHESIS, "'(' expected after loop.");
     Expr* condition = expression(parser);
     consume(parser, TOKEN_RIGHT_PARENTHESIS, "')' expected after loop.");
     Stmt* body = statement(parser);
 
-    return create_stmt_while(parser, condition, body);
+    return stmt_while_create(parser, condition, body);
 }
 
-static Stmt* block_statement(Parser* parser) {
+static Stmt* statement_block(Parser* parser) {
     Stmt** statements = (Stmt**) malloc(sizeof(Stmt*) * 100);
     parser->blocks[parser->blocks_length++] = statements;
 
@@ -372,19 +372,19 @@ static Stmt* block_statement(Parser* parser) {
 
     consume(parser, TOKEN_RIGHT_BRACE, "'}' expected to terminate block.");
 
-    return create_stmt_block(parser, length, statements);
+    return stmt_block_create(parser, length, statements);
 }
 
 static Stmt* statement(Parser* parser) {
-    if (match(parser, 1, TOKEN_IF)) return if_statement(parser);
-    if (match(parser, 1, TOKEN_WHILE)) return while_statement(parser);
-    if (match(parser, 1, TOKEN_PRINT)) return print_statement(parser);
-    if (match(parser, 1, TOKEN_LEFT_BRACE)) return block_statement(parser);
+    if (match(parser, 1, TOKEN_IF)) return statement_cond(parser);
+    if (match(parser, 1, TOKEN_WHILE)) return statement_while(parser);
+    if (match(parser, 1, TOKEN_PRINT)) return statement_print(parser);
+    if (match(parser, 1, TOKEN_LEFT_BRACE)) return statement_block(parser);
 
-    return expr_statement(parser);
+    return statement_expr(parser);
 }
 
-static Stmt* var_declaration(Parser* parser) {
+static Stmt* declaration_var(Parser* parser) {
     Token* name = consume(parser, TOKEN_IDENTIFIER, "Variable name was expected.");
 
     Expr* initializer = NULL;
@@ -393,11 +393,11 @@ static Stmt* var_declaration(Parser* parser) {
     }
 
     consume(parser, TOKEN_SEMICOLON, "Lines must be terminated with semicolons.");
-    return create_stmt_var(parser, name, initializer);
+    return stmt_var_create(parser, name, initializer);
 }
 
 static Stmt* declaration(Parser* parser) {
-    if (match(parser, 1, TOKEN_VAR)) return var_declaration(parser);
+    if (match(parser, 1, TOKEN_VAR)) return declaration_var(parser);
 
     return statement(parser);
 }
