@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 project(cx C)
 
+add_library(reader reader.c)
 add_library(scanner scanner.c)
 add_library(parser parser.c)
 add_library(printer printer.c)
@@ -10,4 +11,4 @@ add_library(symbol_table symbol_table.c)
 add_library(feedback feedback.c)
 add_library(shared shared.c)
 add_executable(main main.c)
-target_link_libraries(main PRIVATE scanner parser printer compiler dynamic_buffer symbol_table feedback shared)
+target_link_libraries(main PRIVATE reader scanner parser printer compiler dynamic_buffer symbol_table feedback shared)

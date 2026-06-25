@@ -1,8 +1,9 @@
-#include "shared.h"
+#include "reader.h"
 #include "scanner.h"
 #include "parser.h"
 #include "printer.h"
 #include "compiler.h"
+#include "shared.h"
 #include "feedback.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,31 +24,6 @@ void start_stage(char* name) {
 
 void end_stage() {
     printf("\n");
-}
-
-Source* read_file(char* path) {
-    FILE *file_pointer = fopen(path, "r");
-    if (file_pointer == NULL) {
-        error("File does not exist.");
-        exit(EXIT_FAILURE);
-    }
-
-    fseek(file_pointer, 0, SEEK_END);
-    long length = ftell(file_pointer);
-    fseek(file_pointer, 0, SEEK_SET);
-
-    char *buffer = (char*) calloc(length, sizeof(char));
-    fread(buffer, sizeof(char), length, file_pointer);
-
-    fclose(file_pointer);
-
-    Source* source = (Source*) malloc(sizeof(Source));
-    source->content = buffer;
-    source->length = length;
-
-    success("Complete!");
-
-    return source;
 }
 
 void main(int argc, char* argv[]) {
