@@ -38,7 +38,9 @@ void feedback(FeedbackType feedback_type, char* format, ...) {
 
     va_end(args);
 
-    exit(EXIT_FAILURE);
+    if (feedback_type == FEEDBACK_ERROR) {
+        exit(EXIT_FAILURE);
+    }
 }
 
 void error(char* message) {

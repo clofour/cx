@@ -6,4 +6,6 @@ typedef struct Source {
     int length;
 } Source;
 
+Source* read_file(char* path);
+
 #endif
