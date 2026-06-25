@@ -198,6 +198,7 @@ ValueType compile_expr(Compiler *compiler, Expr *expr_pointer)
                 return VALUE_BOOL;
             }
 
+            error("Unexpected operator");
             break;
         }
 
