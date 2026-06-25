@@ -3,7 +3,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-Source* read_file(char* path) {
+Source source_create() {
+    Source source;
+    
+    return source;
+}
+
+void source_free(Source* source) {
+    free(source->content);
+}
+
+Source* read_file(Source* source, char* path) {
     FILE *file_pointer = fopen(path, "rb");
     if (file_pointer == NULL) {
         error("File does not exist.");
@@ -19,7 +29,6 @@ Source* read_file(char* path) {
 
     fclose(file_pointer);
 
-    Source* source = (Source*) malloc(sizeof(Source));
     source->content = buffer;
     source->length = length;
 

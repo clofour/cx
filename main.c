@@ -36,11 +36,12 @@ int main(int argc, char* argv[]) {
     char* output_path = argv[2];
 
     start_stage("reader");
-    Source* source = read_file(input_path);
+    Source source = source_create();
+    read_file(&source, input_path);
     end_stage();
 
     start_stage("scanner");
-    Scanner scanner = scanner_create(source);
+    Scanner scanner = scanner_create(&source);
     Token* tokens = scan(&scanner);
     end_stage();
 
@@ -61,6 +62,8 @@ int main(int argc, char* argv[]) {
     compiler_free(&compiler);
     parser_free(&parser);
     scanner_free(&scanner);
+    source_free(&source);
+    
     success("Complete!");
 
     return EXIT_SUCCESS;
