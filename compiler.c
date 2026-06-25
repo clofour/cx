@@ -404,6 +404,8 @@ void write_asm(Compiler *compiler)
     fprintf(file_pointer,
             "  xor rax, rax\n"
             "  call ExitProcess\n");
+
+    fclose(file_pointer);
 }
 
 Compiler compiler_create(SharedData* shared_data, AST ast, char *path) {
