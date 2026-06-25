@@ -17,9 +17,9 @@ static Stmt* create_stmt_expr(Parser* parser, Expr* expr) {
     
     stmt->type = STMT_EXPR;
 
-    StmtExpr stmtExpr;
-    stmtExpr.expr = expr;
-    stmt->value.expr = stmtExpr;
+    StmtExpr stmt_expr;
+    stmt_expr.expr = expr;
+    stmt->value.expr = stmt_expr;
 
     return stmt;
 }
@@ -29,9 +29,9 @@ static Stmt* create_stmt_print(Parser* parser, Expr* expr) {
     
     stmt->type = STMT_PRINT;
 
-    StmtPrint stmtPrint;
-    stmtPrint.expr = expr;
-    stmt->value.print = stmtPrint;
+    StmtPrint stmt_print;
+    stmt_print.expr = expr;
+    stmt->value.print = stmt_print;
 
     return stmt;
 }
@@ -41,11 +41,11 @@ static Stmt* create_stmt_if(Parser* parser, Expr* condition, Stmt* then_body, St
     
     stmt->type = STMT_COND;
 
-    StmtCond stmtCond;
-    stmtCond.condition = condition;
-    stmtCond.then_body = then_body;
-    stmtCond.else_body = else_body;
-    stmt->value.cond = stmtCond;
+    StmtCond stmt_cond;
+    stmt_cond.condition = condition;
+    stmt_cond.then_body = then_body;
+    stmt_cond.else_body = else_body;
+    stmt->value.cond = stmt_cond;
 
     return stmt;
 }
@@ -55,10 +55,10 @@ static Stmt* create_stmt_while(Parser* parser, Expr* condition, Stmt* body) {
     
     stmt->type = STMT_LOOP;
 
-    StmtLoop stmtLoop;
-    stmtLoop.condition = condition;
-    stmtLoop.body = body;
-    stmt->value.loop = stmtLoop;
+    StmtLoop stmt_loop;
+    stmt_loop.condition = condition;
+    stmt_loop.body = body;
+    stmt->value.loop = stmt_loop;
 
     return stmt;
 }
@@ -68,10 +68,10 @@ static Stmt* create_stmt_block(Parser* parser, int length, Stmt** statements) {
     
     stmt->type = STMT_BLOCK;
 
-    StmtBlock stmtBlock;
-    stmtBlock.length = length;
-    stmtBlock.statements = statements;
-    stmt->value.block = stmtBlock;
+    StmtBlock stmt_block;
+    stmt_block.length = length;
+    stmt_block.statements = statements;
+    stmt->value.block = stmt_block;
 
     return stmt;
 }
@@ -81,10 +81,10 @@ static Stmt* create_stmt_var(Parser* parser, Token* name, Expr* expr) {
     
     stmt->type = STMT_VAR;
 
-    StmtVar stmtVar;
-    stmtVar.name = name;
-    stmtVar.expr = expr;
-    stmt->value.var = stmtVar;
+    StmtVar stmt_var;
+    stmt_var.name = name;
+    stmt_var.expr = expr;
+    stmt->value.var = stmt_var;
 
     return stmt;
 }
@@ -100,9 +100,9 @@ static Expr* create_var_expr(Parser* parser, Token* name) {
 
     expr->type = EXPR_VAR;
 
-    VarExpr varExpr;
-    varExpr.name = name;
-    expr->value.var = varExpr;
+    VarExpr var_expr;
+    var_expr.name = name;
+    expr->value.var = var_expr;
 
     return expr;
 }
@@ -112,9 +112,9 @@ static Expr* create_primary_expr(Parser* parser, Token* value) {
 
     expr->type = EXPR_PRIMARY;
 
-    PrimaryExpr primaryExpr;
-    primaryExpr.value = value;
-    expr->value.primary = primaryExpr;
+    PrimaryExpr primary_expr;
+    primary_expr.value = value;
+    expr->value.primary = primary_expr;
 
     return expr;
 }
@@ -124,10 +124,10 @@ static Expr* create_assign_expr(Parser* parser, Token* name, Expr* value) {
 
     expr->type = EXPR_ASSIGN;
 
-    AssignExpr assignExpr;
-    assignExpr.name = name;
-    assignExpr.value = value;
-    expr->value.assign = assignExpr;
+    AssignExpr assign_expr;
+    assign_expr.name = name;
+    assign_expr.value = value;
+    expr->value.assign = assign_expr;
 
     return expr;
 }
@@ -137,10 +137,10 @@ static Expr* create_unary_expr(Parser* parser, Token* operator, Expr* expression
 
     expr->type = EXPR_UNARY;
 
-    UnaryExpr unaryExpr;
-    unaryExpr.operator = operator;
-    unaryExpr.expr = expression;
-    expr->value.unary = unaryExpr;
+    UnaryExpr unary_expr;
+    unary_expr.operator = operator;
+    unary_expr.expr = expression;
+    expr->value.unary = unary_expr;
 
     return expr;
 }
@@ -150,11 +150,11 @@ static Expr* create_binary_expr(Parser* parser, Expr* leftExpr, Token* operator,
 
     expr->type = EXPR_BINARY;
 
-    BinaryExpr binaryExpr;
-    binaryExpr.leftExpr = leftExpr;
-    binaryExpr.operator = operator;
-    binaryExpr.rightExpr = rightExpr;
-    expr->value.binary = binaryExpr;
+    BinaryExpr binary_expr;
+    binary_expr.leftExpr = leftExpr;
+    binary_expr.operator = operator;
+    binary_expr.rightExpr = rightExpr;
+    expr->value.binary = binary_expr;
 
     return expr;
 }
@@ -300,8 +300,8 @@ static Expr* assignment(Parser* parser) {
         Expr* value = assignment(parser);
 
         if (expr->type == EXPR_VAR) {
-            VarExpr varExpr = expr->value.var;
-            Token* name = varExpr.name;
+            VarExpr var_expr = expr->value.var;
+            Token* name = var_expr.name;
             return create_assign_expr(parser, name, value);
         }
 
