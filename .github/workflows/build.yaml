@@ -26,10 +26,10 @@ jobs:
       - name: Attest
         uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26
         with:
-          subject-path: build/Release/main.exe
+          subject-path: build/Release/cx.exe
 
       - name: Upload build artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: build
-          path: build/Release/main.exe
+          name: cx_winx64
+          path: build/Release/cx.exe
