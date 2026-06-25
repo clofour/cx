@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 Source* read_file(char* path) {
-    FILE *file_pointer = fopen(path, "r");
+    FILE *file_pointer = fopen(path, "rb");
     if (file_pointer == NULL) {
         error("File does not exist.");
         exit(EXIT_FAILURE);
