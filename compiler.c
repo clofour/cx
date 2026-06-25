@@ -64,10 +64,15 @@ void emit_label(Compiler* compiler, int label_index, char* value) {
     emit_inst(compiler->text, "%s%d:", value, label_index);
 }
 
-int emit_data(Compiler* compiler, char* value) {
+int emit_data(Compiler* compiler, char* value, bool new_line) {
     int data_index = compiler->unique_counter++;
 
-    emit_inst(compiler->data, "dat%d db '%s', 0xd, 0xa, 0", data_index, value);
+    if (new_line) {
+        emit_inst(compiler->data, "dat%d db '%s', 0xd, 0xa 0", data_index, value);
+    } else {
+        emit_inst(compiler->data, "dat%d db '%s', 0", data_index, value);
+    }
+    
 
     return data_index;
 }
@@ -88,7 +93,7 @@ ValueType compile_token(Compiler *compiler, Token *token)
 
             char *string_value = token->value.string_value;
 
-            int data_index = emit_data(compiler, string_value);
+            int data_index = emit_data(compiler, string_value, false);
             emit_inst(compiler->text, "lea rax, [dat%d]", data_index);
 
             return VALUE_STRING;
@@ -272,13 +277,13 @@ void compile_stmt(Compiler *compiler, Stmt *stmt_pointer)
             switch (value)
             {
                 case VALUE_NUMBER:
-                    data_index = emit_data(compiler, "%d");
+                    data_index = emit_data(compiler, "%d", true);
                     break;
                 case VALUE_STRING:
-                    data_index = emit_data(compiler, "%s");
+                    data_index = emit_data(compiler, "%s", true);
                     break;
                 case VALUE_BOOL:
-                    data_index = emit_data(compiler, "%d");
+                    data_index = emit_data(compiler, "%d", true);
                     break;
                 case VALUE_NONE:
                     error_expr(compiler->shared_data->reporter, stmt_print.expr, "Unrecognized value.");
