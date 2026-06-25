@@ -30,8 +30,8 @@ Afterwards, you can optionally assemble the assembly files into portable executa
 ```ebnf
 program = { declaration }, EOF;
 
-declaration = declaration_var | statement;
-declaration_var = "var", IDENTIFIER, [ "=", expression ], ";";
+declaration = decl_var | statement;
+decl_var = "var", IDENTIFIER, [ "=", expression ], ";";
 
 statement = stmt_expr | stmt_cond | stmt_loop | stmt_print | block;
 block = "{", { declaration }, "}";
