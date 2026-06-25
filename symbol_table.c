@@ -32,11 +32,11 @@ Symbol* symbol_lookup(SymbolTable* symbol_table, char *name)
 {
     for (int i = symbol_table->symbol_count - 1; i >= 0; i--)
     {
-        Symbol variable = symbol_table->symbols[i];
+        Symbol* symbol = &symbol_table->symbols[i];
 
-        if (strcmp(name, variable.name) == 0)
+        if (strcmp(name, symbol->name) == 0)
         {
-            return &variable;
+            return symbol;
         }
     }
 
