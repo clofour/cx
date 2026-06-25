@@ -1,4 +1,4 @@
-#include "shared.h"
+#include "keywords.h"
 
 Keyword keywords[] = {
     { "and", TOKEN_AND },

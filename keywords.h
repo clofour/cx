@@ -1,5 +1,5 @@
-#ifndef SHARED_H
-#define SHARED_H
+#ifndef KEYWORDS_H
+#define KEYWORDS_H
 
 #include "scanner.h"
 

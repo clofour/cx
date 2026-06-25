@@ -3,7 +3,7 @@
 #include "parser.h"
 #include "printer.h"
 #include "compiler.h"
-#include "shared.h"
+#include "keywords.h"
 #include "feedback.h"
 #include <stdio.h>
 #include <stdlib.h>
