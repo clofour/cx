@@ -42,7 +42,7 @@ void print_token(int depth, Token* token) {
         case TOKEN_PLUS: printf("+"); break;
         case TOKEN_MINUS: printf("-"); break;
         case TOKEN_SLASH: printf("/"); break;
-        case TOKEN_MODULO: printf("%"); break;
+        case TOKEN_MODULO: printf("%%"); break;
         case TOKEN_STAR: printf("*"); break;
         case TOKEN_EQUAL_EQUAL: printf("=="); break;
         case TOKEN_BANG_EQUAL: printf("!="); break;
@@ -51,7 +51,7 @@ void print_token(int depth, Token* token) {
         case TOKEN_LESS: printf("<"); break;
         case TOKEN_LESS_EQUAL: printf("<="); break;
         case TOKEN_NONE: error_token(token, "Unrecognized token."); break;
-        default: printf(keyword_lookup(type)); break;
+        default: printf("%s", keyword_lookup(type)); break;
     }
 
    printf("\n");
