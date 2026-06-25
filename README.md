@@ -17,6 +17,27 @@ Afterwards, you can optionally assemble the assembly files into portable executa
 
 ### Grammar
 
+```ebnf
+program = { declaration }, EOF;
+
+declaration = varDecl | statement;
+varDecl = "var", IDENTIFIER, [ "=", expression ], ";";
+
+statement = exprStmt | ifStmt | whileStmt | printStmt | block;
+block = "{", { declaration }, "}";
+exprStmt = expression, ";";
+printStmt = "print", expression, ";";
+ifStmt = "if", "(", expression, ")", statement;
+whileStmt = "while", "(", expression, ")", statement;
+
+expression = equality;
+equality = comparison, { ("!=" | "=="), comparison };
+comparison = term, { (">" | ">=" | "<" | "<="), term };
+term = factor, { ("-" | "+"), factor };
+factor = unary, { ("/" | "*"), unary };
+unary = ("!" | "-"), unary | primary;
+primary = NUMBER | STRING | "true" | "false" | "nil" | IDENTIFIER | "(", expression, ")";
+```
 
 #### Print
 
