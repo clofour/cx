@@ -210,17 +210,16 @@ ValueType compile_expr(Compiler *compiler, Expr *expr_pointer)
 
             switch (unary_expr.operator->type) {
                 case TOKEN_BANG: {
-                    emit_inst(compiler->text, "neg rax");
-
-                    return VALUE_NUMBER;
-                }
-
-                case TOKEN_MINUS: {
                     emit_inst(compiler->text, "cmp rax, 0");
                     emit_inst(compiler->text, "sete al");
                     emit_inst(compiler->text, "movzx rax, al");
 
                     return VALUE_BOOL;
+                }
+                case TOKEN_MINUS: {
+                    emit_inst(compiler->text, "neg rax");
+
+                    return VALUE_NUMBER;
                 }
             }
 
