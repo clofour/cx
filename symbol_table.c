@@ -12,7 +12,7 @@ SymbolTable* create_symbol_table() {
     return symbol_table;
 }
 
-SymbolTable* free_symbol_table(SymbolTable* symbol_table) {
+void free_symbol_table(SymbolTable* symbol_table) {
     free(symbol_table->symbols);
     free(symbol_table->symbol_counts);
     free(symbol_table);
