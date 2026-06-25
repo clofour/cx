@@ -44,7 +44,7 @@ expression = equality;
 equality = comparison, { ("!=" | "=="), comparison };
 comparison = term, { (">" | ">=" | "<" | "<="), term };
 term = factor, { ("-" | "+"), factor };
-factor = unary, { ("/" | "*"), unary };
+factor = unary, { ("*" | "/" | "%"), unary };
 unary = ("!" | "-"), unary | primary;
 primary = NUMBER | STRING | "true" | "false" | "nil" | IDENTIFIER | "(", expression, ")";
 ```
@@ -145,7 +145,7 @@ while (x < 10) {
 
 #### Conditional Statements
 
-Conditional statements can be used 
+Conditional statements can be used to execute different blocks of code depending on a condition.
 ```javascript
 var x = 1;
 if (x > 1) x = 2;
