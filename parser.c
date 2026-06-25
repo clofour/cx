@@ -7,8 +7,8 @@
 static Stmt* create_stmt(Parser* parser) {
     Stmt stmt = {0};
 
-    parser->statements[parser->statementsLength++] = stmt;
-    return &parser->statements[parser->statementsLength - 1];
+    parser->statements[parser->statements_length++] = stmt;
+    return &parser->statements[parser->statements_length - 1];
 }
 
 static Stmt* create_stmt_expr(Parser* parser, Expr* expr) {
@@ -89,8 +89,8 @@ static Stmt* create_stmt_var(Parser* parser, Token* name, Expr* expr) {
 
 static Expr* create_expr(Parser* parser) {
     Expr expr = {0};
-    parser->expressions[parser->expressionsLength++] = expr;
-    return &parser->expressions[parser->expressionsLength - 1];
+    parser->expressions[parser->expressions_length++] = expr;
+    return &parser->expressions[parser->expressions_length - 1];
 }
 
 static Expr* create_var_expr(Parser* parser, Token* name) {
@@ -389,7 +389,7 @@ static Stmt* declaration(Parser* parser) {
 
 static void program(Parser* parser) {
     while (!is_at_end(parser)) {
-        parser->program[parser->programLength++] = declaration(parser);
+        parser->program[parser->program_length++] = declaration(parser);
     }
 }
 
@@ -397,20 +397,20 @@ AST parse(Token* tokens) {
     Parser parser;
     parser.current = 0;
     parser.tokens = tokens;
-    parser.expressionsCapacity = 100;
-    parser.expressions = (Expr*) malloc(sizeof(Expr) * parser.expressionsCapacity);
-    parser.expressionsLength = 0;
-    parser.statementsCapacity = 100;
-    parser.statements = (Stmt*) malloc(sizeof(Stmt) * parser.statementsCapacity);
-    parser.statementsLength = 0;
-    parser.programCapacity = 100;
-    parser.program = (Stmt**) malloc(sizeof(Stmt*) * parser.programCapacity);
-    parser.programLength = 0;
+    parser.expressions_capacity = 100;
+    parser.expressions = (Expr*) malloc(sizeof(Expr) * parser.expressions_capacity);
+    parser.expressions_length = 0;
+    parser.statements_capacity = 100;
+    parser.statements = (Stmt*) malloc(sizeof(Stmt) * parser.statements_capacity);
+    parser.statements_length = 0;
+    parser.program_capacity = 100;
+    parser.program = (Stmt**) malloc(sizeof(Stmt*) * parser.program_capacity);
+    parser.program_length = 0;
 
     program(&parser);
 
     AST ast;
     ast.nodes = parser.program;
-    ast.length = parser.programLength;
+    ast.length = parser.program_length;
     return ast;
 }

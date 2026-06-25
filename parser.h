@@ -103,14 +103,14 @@ typedef struct {
     int current;
     Token* tokens;
     Expr* expressions;
-    int expressionsLength;
-    int expressionsCapacity;
+    int expressions_length;
+    int expressions_capacity;
     Stmt* statements;
-    int statementsLength;
-    int statementsCapacity;
+    int statements_length;
+    int statements_capacity;
     Stmt** program;
-    int programLength;
-    int programCapacity;
+    int program_length;
+    int program_capacity;
 } Parser;
 
 typedef struct {
