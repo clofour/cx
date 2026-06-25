@@ -230,8 +230,7 @@ static Expr* primary(Parser* parser) {
         return expr;
     }
 
-    printf("Expected expression.");
-    return NULL;
+    error("Expected expression.");
 }
 
 static Expr* unary(Parser* parser) {
