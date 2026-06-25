@@ -8,6 +8,6 @@ typedef struct {
 } Printer;
 
 Printer printer_create(SharedData* shared_data);
-void print(SharedData* shared_data, AST ast);
+void print(Printer* printer, AST ast);
 
 #endif

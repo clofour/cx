@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
+static int get_line(Parser* parser);
+
 static Token* peek(Parser* parser) {
     return &parser->tokens[parser->current];
 }
