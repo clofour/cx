@@ -21,10 +21,10 @@ typedef struct {
     int depth;
 } SymbolTable;
 
-SymbolTable* create_symbol_table();
-void free_symbol_table(SymbolTable* symbol_table);
-void enter_scope(SymbolTable* symbol_table);
-void exit_scope(SymbolTable* symbol_table);
+SymbolTable* symbol_table_create();
+void symbol_table_free(SymbolTable* symbol_table);
+void scope_enter(SymbolTable* symbol_table);
+void scope_exit(SymbolTable* symbol_table);
 Symbol* symbol_lookup(SymbolTable* symbol_table, char *name);
 int symbol_define(SymbolTable* symbol_table, char *name, ValueType type);
 

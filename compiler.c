@@ -347,12 +347,12 @@ void compile_stmt(Compiler *compiler, Stmt *stmt_pointer)
         {
             StmtBlock stmt_block = stmt.value.block;
 
-            enter_scope(compiler->symbol_table);
+            scope_enter(compiler->symbol_table);
             for (int i = 0; i < stmt_block.length; i++)
             {
                 compile_stmt(compiler, stmt_block.statements[i]);
             }
-            exit_scope(compiler->symbol_table);
+            scope_exit(compiler->symbol_table);
 
             break;
         }
@@ -413,7 +413,7 @@ Compiler compiler_create(SharedData* shared_data, AST ast, char *path) {
     compiler.path = path;
     compiler.data = dynamic_buffer_create(100);
     compiler.text = dynamic_buffer_create(100);
-    compiler.symbol_table = create_symbol_table();
+    compiler.symbol_table = symbol_table_create();
     compiler.unique_counter = 0;
 
     return compiler;
@@ -422,7 +422,7 @@ Compiler compiler_create(SharedData* shared_data, AST ast, char *path) {
 void compiler_free(Compiler* compiler) {
     dynamic_buffer_free(compiler->data);
     dynamic_buffer_free(compiler->text);
-    free_symbol_table(compiler->symbol_table);
+    symbol_table_free(compiler->symbol_table);
 }
 
 void compile(Compiler* compiler) {

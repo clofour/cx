@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-SymbolTable* create_symbol_table() {
+SymbolTable* symbol_table_create() {
     SymbolTable* symbol_table = (SymbolTable*) malloc(sizeof(SymbolTable));
     symbol_table->symbols = (Symbol*) malloc(sizeof(Symbol) * 100);
     symbol_table->symbol_count = 0;
@@ -12,18 +12,18 @@ SymbolTable* create_symbol_table() {
     return symbol_table;
 }
 
-void free_symbol_table(SymbolTable* symbol_table) {
+void symbol_table_free(SymbolTable* symbol_table) {
     free(symbol_table->symbols);
     free(symbol_table->symbol_counts);
     free(symbol_table);
 }
 
-void enter_scope(SymbolTable* symbol_table) {
+void scope_enter(SymbolTable* symbol_table) {
     symbol_table->symbol_counts[symbol_table->depth] = symbol_table->symbol_count;
     symbol_table->depth++;
 }
 
-void exit_scope(SymbolTable* symbol_table) {
+void scope_exit(SymbolTable* symbol_table) {
     symbol_table->depth--;
     symbol_table->symbol_count = symbol_table->symbol_counts[symbol_table->depth];
 }
