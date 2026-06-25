@@ -61,6 +61,7 @@ int main(int argc, char* argv[]) {
     compiler_free(&compiler);
     parser_free(&parser);
     scanner_free(&scanner);
+    success("Complete!");
 
     return EXIT_SUCCESS;
 }

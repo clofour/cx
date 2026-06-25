@@ -380,6 +380,7 @@ void write_asm(Compiler *compiler)
 
 Compiler compiler_create(AST ast, char *path) {
     Compiler compiler;
+    compiler.ast = ast;
     compiler.path = path;
     compiler.data = create_dynamic_buffer(100);
     compiler.text = create_dynamic_buffer(100);

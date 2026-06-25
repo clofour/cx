@@ -419,7 +419,7 @@ void parser_free(Parser* parser) {
 }
 
 AST parse(Parser* parser) {
-    program(&parser);
+    program(parser);
 
     success("Complete!");
 
