@@ -68,7 +68,7 @@ int emit_data(Compiler* compiler, char* value, bool new_line) {
     int data_index = compiler->unique_counter++;
 
     if (new_line) {
-        emit_inst(compiler->data, "dat%d db '%s', 0xd, 0xa 0", data_index, value);
+        emit_inst(compiler->data, "dat%d db '%s', 0xd, 0xa, 0", data_index, value);
     } else {
         emit_inst(compiler->data, "dat%d db '%s', 0", data_index, value);
     }
