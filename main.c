@@ -40,19 +40,27 @@ int main(int argc, char* argv[]) {
     end_stage();
 
     start_stage("scanner");
-    Token* tokens = scan(source);
+    Scanner scanner = scanner_create(source);
+    Token* tokens = scan(&scanner);
     end_stage();
 
     start_stage("parser");
-    AST ast = parse(tokens);
+    Parser parser = parser_create(tokens);
+    AST ast = parse(&parser);
     end_stage();
 
     // printf("AST:\n");
     // print(ast);
 
     start_stage("compiler");
-    compile(ast, output_path);
+    Compiler compiler = compiler_create(ast, output_path);
+    compile(&compiler);
     end_stage();
+
+    start_stage("cleanup");
+    compiler_free(&compiler);
+    parser_free(&parser);
+    scanner_free(&scanner);
 
     return EXIT_SUCCESS;
 }

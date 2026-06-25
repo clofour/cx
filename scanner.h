@@ -85,6 +85,8 @@ typedef struct {
     int token_count;
 } Scanner;
 
-Token* scan(Source* source);
+Scanner scanner_create(Source* source);
+void scanner_free(Scanner* scanner);
+Token* scan(Scanner* scanner);
 
 #endif

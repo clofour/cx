@@ -118,6 +118,8 @@ typedef struct {
     int length;
 } AST;
 
-AST parse(Token* tokens);
+Parser parser_create(Token* tokens);
+void parser_free(Parser* parser);
+AST parse(Parser* parser);
 
 #endif

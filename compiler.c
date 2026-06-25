@@ -378,8 +378,7 @@ void write_asm(Compiler *compiler)
             "  call ExitProcess\n");
 }
 
-void compile(AST ast, char *path)
-{
+Compiler compiler_create(AST ast, char *path) {
     Compiler compiler;
     compiler.path = path;
     compiler.data = create_dynamic_buffer(100);
@@ -387,14 +386,23 @@ void compile(AST ast, char *path)
     compiler.symbol_table = create_symbol_table();
     compiler.unique_counter = 0;
 
-    Compiler *compiler_pointer = &compiler;
+    return compiler;
+}
 
+void compiler_free(Compiler* compiler) {
+    free_dynamic_buffer(compiler->data);
+    free_dynamic_buffer(compiler->text);
+    free_symbol_table(compiler->symbol_table);
+}
+
+void compile(Compiler* compiler) {
+    AST ast = compiler->ast;
     for (int i = 0; i < ast.length; i++)
     {
-        compile_stmt(compiler_pointer, ast.nodes[i]);
+        compile_stmt(compiler, ast.nodes[i]);
     }
 
-    write_asm(compiler_pointer);
+    write_asm(compiler);
 
     success("Complete!");
 }

@@ -395,7 +395,7 @@ static void program(Parser* parser) {
     }
 }
 
-AST parse(Token* tokens) {
+Parser parser_create(Token* tokens) {
     Parser parser;
     parser.current = 0;
     parser.tokens = tokens;
@@ -409,12 +409,22 @@ AST parse(Token* tokens) {
     parser.program = (Stmt**) malloc(sizeof(Stmt*) * parser.program_capacity);
     parser.program_length = 0;
 
+    return parser;
+}
+
+void parser_free(Parser* parser) {
+    free(parser->expressions);
+    free(parser->statements);
+    free(parser->program);
+}
+
+AST parse(Parser* parser) {
     program(&parser);
 
     success("Complete!");
 
     AST ast;
-    ast.nodes = parser.program;
-    ast.length = parser.program_length;
+    ast.nodes = parser->program;
+    ast.length = parser->program_length;
     return ast;
 }

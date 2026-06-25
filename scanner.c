@@ -174,7 +174,7 @@ static Token* scan_token(Scanner *scanner) {
     return NULL;
 }
 
-Token* scan(Source* source) {
+Scanner scanner_create(Source* source) {
     Scanner scanner;
     scanner.source = source->content;
     scanner.source_length = source->length;
@@ -184,20 +184,26 @@ Token* scan(Source* source) {
     scanner.tokens = (Token*) malloc(sizeof(Token) * scanner.token_capacity);
     scanner.token_count = 0;
 
-    Scanner *scanner_pointer = &scanner;
+    return scanner;
+}
 
-    while (!is_at_end(scanner_pointer)) {
-        scanner.start = scanner.current;
-        scan_token(scanner_pointer);
+void scanner_free(Scanner* scanner) {
+    free(scanner->tokens);
+}
 
-        if (scanner.token_count > scanner.token_capacity - 10) {
-            scanner.token_capacity = scanner.token_capacity * 2;
-            scanner.tokens = realloc(scanner.tokens, sizeof(Token) * scanner.token_capacity);
+Token* scan(Scanner* scanner) {
+    while (!is_at_end(scanner)) {
+        scanner->start = scanner->current;
+        scan_token(scanner);
+
+        if (scanner->token_count > scanner->token_capacity - 10) {
+            scanner->token_capacity = scanner->token_capacity * 2;
+            scanner->tokens = realloc(scanner->tokens, sizeof(Token) * scanner->token_capacity);
         }
     }
-    add_token(scanner_pointer, TOKEN_EOF);
+    add_token(scanner, TOKEN_EOF);
 
     success("Complete!");
 
-    return scanner.tokens;
+    return scanner->tokens;
 }
