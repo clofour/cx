@@ -188,3 +188,4 @@ while (x < 10) {
 
 ## Images
 
+![Demonstration](/docs/assets/demo.png)
