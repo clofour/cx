@@ -161,12 +161,14 @@ static Token* scan_token(Scanner *scanner) {
             scanner->line++;
             break;
         default:
+
             if (isalpha(character)) {
                 return identifier(scanner);
             }
             else {
                 error_line(scanner->line, "Unrecognized character.");
             }
+
     }
 
     return NULL;
