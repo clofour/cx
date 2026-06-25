@@ -5,18 +5,7 @@
 #include <stdarg.h>
 #include <stdbool.h>
 
-void feedback(char* format, ...) {
-    va_list args;
-    va_start(args, format);
-
-    vprintf(format, args);
-
-    va_end(args);
-
-    exit(EXIT_FAILURE);
-}
-
-void color(Color color, bool state) {
+void color_output(Color color, bool state) {
 
     if (state == true) {
         switch (color) {
@@ -32,20 +21,29 @@ void color(Color color, bool state) {
 
 }
 
+void feedback(Color color, char* format, ...) {
+    va_list args;
+    va_start(args, format);
+
+    color_output(color, true);
+
+    vprintf(format, args);
+
+    color_output(color, false);
+
+    va_end(args);
+
+    exit(EXIT_FAILURE);
+}
+
 void error(char* message) {
-    color(COLOR_RED, true);
-    feedback("%s: error: %s", "hello", message);
-    color(COLOR_RED, false);
+    feedback(COLOR_RED, "%s: error: %s\n", "hello", message);
 }
 
 void error_token(Token* token, char* message) {
-    color(COLOR_RED, true);
-    feedback("%s:%d: error: %s\n", "hello", token->line, message);
-    color(COLOR_RED, false);
+    feedback(COLOR_RED, "%s:%d: error: %s\n", "hello", token->line, message);
 }
 
 void error_line(int line, char* message) {
-    color(COLOR_RED, true);
-    feedback("%s:%d: error: %s\n", "hello", line, message);
-    color(COLOR_RED, false);
+    feedback(COLOR_RED, "%s:%d: error: %s\n", "hello", line, message);
 }

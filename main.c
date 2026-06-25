@@ -18,7 +18,7 @@ void print_docs() {
 }
 
 void start_stage(char* name) {
-    printf("[%s] ", name);
+    printf("[%s]\n", name);
 }
 
 void end_stage() {
