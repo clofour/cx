@@ -17,7 +17,6 @@ Source* read_file(Source* source, char* path) {
     FILE *file_pointer = fopen(path, "rb");
     if (file_pointer == NULL) {
         error("File does not exist.");
-        exit(EXIT_FAILURE);
     }
 
     fseek(file_pointer, 0, SEEK_END);
