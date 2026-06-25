@@ -227,6 +227,7 @@ static Expr* primary(Parser* parser) {
     if (match(parser, 1, TOKEN_LEFT_PARENTHESIS)) {
         Expr* expr = expression(parser);
         consume(parser, TOKEN_RIGHT_PARENTHESIS, "Closing parentheses expected.");
+        return expr;
     }
 
     printf("Expected expression.");
