@@ -352,7 +352,7 @@ void compile_stmt(Compiler *compiler, Stmt *stmt_pointer)
             {
                 compile_stmt(compiler, stmt_block.statements[i]);
             }
-            symbol_table_symbol_table_scope_exit(compiler->symbol_table);
+            symbol_table_scope_exit(compiler->symbol_table);
 
             break;
         }
