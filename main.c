@@ -1,10 +1,20 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include "shared.h"
 #include "scanner.h"
 #include "parser.h"
 #include "printer.h"
 #include "compiler.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+void print_docs() {
+    printf(
+        "Usage: cx <input_file> <output_file>\n"
+        "\n"
+        "Compile cx source files into assembly.\n"
+        "\n"
+    );
+}
 
 Source* read_file(char* path) {
     FILE *file_pointer = fopen(path, "r");
@@ -25,8 +35,16 @@ Source* read_file(char* path) {
     return source;
 }
 
-void main() {
-    Source* source = read_file("samples/fizzbuzz.cx");
+void main(int argc, char* argv[]) {
+    if ((argc == 2 && (strcmp(argv[1], "--help" == 0 || strcmp(argv[1], "-h") == 0))) || argc != 3) {
+        print_docs();
+        return;
+    }
+
+    char* input_path = argv[1];
+    char* output_path = argv[2];
+
+    Source* source = read_file(input_path);
     printf("Source:\n");
     printf(source->content);
     printf("\n");
@@ -38,5 +56,5 @@ void main() {
     printf("AST:\n");
     print(ast);
 
-    compile(ast, "outputs/output.asm");
+    compile(ast, output_path);
 }
