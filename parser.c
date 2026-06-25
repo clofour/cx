@@ -5,6 +5,59 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
+static Token* peek(Parser* parser) {
+    return &parser->tokens[parser->current];
+}
+
+static bool is_at_end(Parser* parser) {
+    Token* next = peek(parser);
+    return next->type == TOKEN_EOF;
+}
+
+static Token* previous(Parser* parser) {
+    return &parser->tokens[parser->current - 1];
+}
+
+static Token* advance(Parser* parser) {
+    if (!is_at_end(parser)) parser->current++;
+    return previous(parser);
+}
+
+static bool check(Parser* parser, TokenType type) {
+    if (is_at_end(parser)) return false;
+    Token* next = peek(parser);
+    return next->type == type;
+}
+
+static bool match(Parser* parser, int count, ...) {
+    va_list args;
+    va_start(args, count);
+
+    for (int i = 0; i < count; i++) {
+        TokenType type = va_arg(args, TokenType);
+        if (check(parser, type)) {
+            advance(parser);
+
+            va_end(args);
+            return true;
+        }
+    }
+
+    va_end(args);
+    return false;
+}
+
+static Token* consume(Parser* parser, TokenType type, char* message) {
+    if (check(parser, type)) return advance(parser);
+
+    error_line(parser->shared_data->reporter, get_line(parser), message);
+    return NULL;
+}
+
+static int get_line(Parser* parser) {
+    return previous(parser)->line;
+}
+
 static Stmt* stmt_create(Parser* parser) {
     Stmt stmt = {0};
 
@@ -160,61 +213,11 @@ static Expr* expr_binary_create(Parser* parser, Expr* left_expr, Token* operator
     return expr;
 }
 
-static Token* peek(Parser* parser) {
-    return &parser->tokens[parser->current];
-}
-
-static bool is_at_end(Parser* parser) {
-    Token* next = peek(parser);
-    return next->type == TOKEN_EOF;
-}
-
-static Token* previous(Parser* parser) {
-    return &parser->tokens[parser->current - 1];
-}
-
-static Token* advance(Parser* parser) {
-    if (!is_at_end(parser)) parser->current++;
-    return previous(parser);
-}
-
-static bool check(Parser* parser, TokenType type) {
-    if (is_at_end(parser)) return false;
-    Token* next = peek(parser);
-    return next->type == type;
-}
-
-static bool match(Parser* parser, int count, ...) {
-    va_list args;
-    va_start(args, count);
-
-    for (int i = 0; i < count; i++) {
-        TokenType type = va_arg(args, TokenType);
-        if (check(parser, type)) {
-            advance(parser);
-
-            va_end(args);
-            return true;
-        }
-    }
-
-    va_end(args);
-    return false;
-}
-
-static Token* consume(Parser* parser, TokenType type, char* message) {
-    if (check(parser, type)) return advance(parser);
-
-    error_line(parser->shared_data->reporter, get_line(parser), message);
-    return NULL;
-}
-
-static int get_line(Parser* parser) {
-    return previous(parser)->line;
-}
-
+static Stmt* declaration(Parser* parser);
+static Stmt* statement(Parser* parser);
 static Expr* expression(Parser* parser);
 static Expr* equality(Parser* parser);
+static Expr* assignment(Parser* parser);
 static Expr* comparison(Parser* parser);
 static Expr* term(Parser* parser);
 static Expr* factor(Parser* parser);
@@ -319,9 +322,6 @@ static Expr* assignment(Parser* parser) {
 static Expr* expression(Parser* parser) {
     return assignment(parser);
 }
-
-static Stmt* declaration(Parser* parser);
-static Stmt* statement(Parser* parser);
 
 static Stmt* statement_expr(Parser* parser) {
     Expr* expr = expression(parser);
