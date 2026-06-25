@@ -343,7 +343,7 @@ static Stmt* if_statement(Parser* parser) {
     consume(parser, TOKEN_RIGHT_PARENTHESIS, "')' expected after conditional.");
     Stmt* then_body = statement(parser);
 
-    Stmt* else_body;
+    Stmt* else_body = NULL;
     if (match(parser, 1, TOKEN_ELSE)) {
         else_body = statement(parser);
     }
