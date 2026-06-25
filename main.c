@@ -7,6 +7,17 @@
 #include <stdlib.h>
 #include <string.h>
 
+void print_logo() {
+    printf(
+        " ██████╗██╗  ██╗    \n"
+        "██╔════╝╚██╗██╔╝    \n"
+        "██║      ╚███╔╝     \n"
+        "██║      ██╔██╗     \n"
+        "╚██████╗██╔╝ ██╗    \n"
+        " ╚═════╝╚═╝  ╚═╝    \n"
+    );
+}
+
 void print_docs() {
     printf(
         "Usage: cx <input_file> <output_file>\n"
@@ -36,7 +47,9 @@ Source* read_file(char* path) {
 }
 
 void main(int argc, char* argv[]) {
-    if ((argc == 2 && (strcmp(argv[1], "--help" == 0 || strcmp(argv[1], "-h") == 0))) || argc != 3) {
+    print_logo();
+
+    if ((argc == 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)) || argc != 3) {
         print_docs();
         return;
     }
