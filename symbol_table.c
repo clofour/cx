@@ -1,4 +1,5 @@
 #include "symbol_table.h"
+#include "feedback.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -39,6 +40,8 @@ Symbol symbol_lookup(SymbolTable* symbol_table, char *name)
             return variable;
         }
     }
+
+    error("Undefined symbol");
 }
 
 int symbol_define(SymbolTable* symbol_table, char *name, ValueType type)

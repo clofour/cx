@@ -257,15 +257,18 @@ void compile_stmt(Compiler *compiler, Stmt *stmt_pointer)
             int data_index;
             switch (value)
             {
-            case VALUE_NUMBER:
-                data_index = emit_data(compiler, "%d");
-                break;
-            case VALUE_STRING:
-                data_index = emit_data(compiler, "%s");
-                break;
-            case VALUE_BOOL:
-                data_index = emit_data(compiler, "%d");
-                break;
+                case VALUE_NUMBER:
+                    data_index = emit_data(compiler, "%d");
+                    break;
+                case VALUE_STRING:
+                    data_index = emit_data(compiler, "%s");
+                    break;
+                case VALUE_BOOL:
+                    data_index = emit_data(compiler, "%d");
+                    break;
+                case VALUE_NONE:
+                    error("Unrecognized value");
+                    break;
             }
             emit_inst(compiler->text, "lea rcx, [dat%d]", data_index);
             emit_inst(compiler->text, "call printf");

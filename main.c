@@ -26,10 +26,10 @@ void end_stage() {
     printf("\n");
 }
 
-void main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) {
     if ((argc == 2 && (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)) || argc != 3) {
         print_docs();
-        return;
+        return EXIT_FAILURE;
     }
 
     char* input_path = argv[1];
@@ -53,4 +53,6 @@ void main(int argc, char* argv[]) {
     start_stage("compiler");
     compile(ast, output_path);
     end_stage();
+
+    return EXIT_SUCCESS;
 }

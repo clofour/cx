@@ -203,7 +203,7 @@ static bool match(Parser* parser, int count, ...) {
 static Token* consume(Parser* parser, TokenType type, char* message) {
     if (check(parser, type)) return advance(parser);
 
-    printf(message);
+    error_line(peek(parser)->line, message);
     return NULL;
 }
 
@@ -226,6 +226,7 @@ static Expr* primary(Parser* parser) {
 
     if (match(parser, 1, TOKEN_LEFT_PARENTHESIS)) {
         Expr* expr = expression(parser);
+        consume(parser, TOKEN_RIGHT_PARENTHESIS, "Closing parentheses expected.");
     }
 
     printf("Expected expression.");
