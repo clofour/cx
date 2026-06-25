@@ -28,8 +28,8 @@ void feedback(FeedbackType feedback_type, char* format, ...) {
 
     Color color;
     switch (feedback_type) {
-        case FEEDBACK_ERROR: color = COLOR_RED;
-        case FEEDBACK_SUCCESS: color = COLOR_GREEN;
+        case FEEDBACK_ERROR: color = COLOR_RED; break;
+        case FEEDBACK_SUCCESS: color = COLOR_GREEN; break;
     }
 
     color_output(color, true);

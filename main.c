@@ -22,7 +22,7 @@ void start_stage(char* name) {
 }
 
 void end_stage() {
-    printf("done\n");
+    printf("\n");
 }
 
 Source* read_file(char* path) {
@@ -44,6 +44,8 @@ Source* read_file(char* path) {
     Source* source = (Source*) malloc(sizeof(Source));
     source->content = buffer;
     source->length = length;
+
+    success("Complete!");
 
     return source;
 }
