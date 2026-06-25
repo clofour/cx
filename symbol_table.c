@@ -1,5 +1,6 @@
 #include "symbol_table.h"
 #include <stdlib.h>
+#include <string.h>
 
 SymbolTable* create_symbol_table() {
     SymbolTable* symbol_table = (SymbolTable*) malloc(sizeof(SymbolTable));
