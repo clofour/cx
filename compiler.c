@@ -48,8 +48,6 @@ void emit_inst(DynamicBuffer *dynamic_buffer, char *format, ...)
 
 void emit_label(Compiler* compiler, int label_index, char* value) {
     emit_inst(compiler->text, "%s%d:", value, label_index);
-
-    return label_index;
 }
 
 int emit_data(Compiler* compiler, char* value) {
