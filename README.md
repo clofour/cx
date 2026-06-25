@@ -1,6 +1,6 @@
 # cx
 
-cx is a small programming language written in C. It contains a scanner, parser, printer and Windows x64 code generator.
+cx is a small programming language written in C (my first time!). It contains a scanner, parser, printer and Windows x64 code generator.
 
 ## Quick Start
 
