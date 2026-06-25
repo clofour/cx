@@ -147,9 +147,9 @@ ValueType compile_expr(Compiler *compiler, Expr *expr_pointer)
         {
             BinaryExpr binary_expr = expr.value.binary;
 
-            ValueType right_value = compile_expr(compiler, binary_expr.rightExpr);
+            ValueType right_value = compile_expr(compiler, binary_expr.right_expr);
             emit_inst(compiler->text, "push rax");
-            ValueType left_value = compile_expr(compiler, binary_expr.leftExpr);
+            ValueType left_value = compile_expr(compiler, binary_expr.left_expr);
             emit_inst(compiler->text, "pop rcx");
 
             Token* operator = binary_expr.operator;

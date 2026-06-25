@@ -14,9 +14,9 @@ typedef enum {
 typedef struct Expr Expr;
 
 typedef struct {
-    Expr* leftExpr;
+    Expr* left_expr;
     Token* operator;
-    Expr* rightExpr;
+    Expr* right_expr;
 } BinaryExpr;
 
 typedef struct {

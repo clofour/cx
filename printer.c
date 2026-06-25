@@ -88,8 +88,8 @@ void print_expr(Printer* printer, int depth, Expr* expr_pointer) {
 
             print_token(printer, depth, binary_expr.operator);
 
-            print_expr(printer, depth + 1, binary_expr.leftExpr);
-            print_expr(printer, depth + 1, binary_expr.rightExpr);
+            print_expr(printer, depth + 1, binary_expr.left_expr);
+            print_expr(printer, depth + 1, binary_expr.right_expr);
 
             return;
 

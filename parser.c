@@ -146,15 +146,15 @@ static Expr* create_unary_expr(Parser* parser, Token* operator, Expr* expression
     return expr;
 }
 
-static Expr* create_binary_expr(Parser* parser, Expr* leftExpr, Token* operator, Expr* rightExpr) {
+static Expr* create_binary_expr(Parser* parser, Expr* left_expr, Token* operator, Expr* right_expr) {
     Expr* expr = create_expr(parser);
 
     expr->type = EXPR_BINARY;
 
     BinaryExpr binary_expr;
-    binary_expr.leftExpr = leftExpr;
+    binary_expr.left_expr = left_expr;
     binary_expr.operator = operator;
-    binary_expr.rightExpr = rightExpr;
+    binary_expr.right_expr = right_expr;
     expr->value.binary = binary_expr;
 
     return expr;
