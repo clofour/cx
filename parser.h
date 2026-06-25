@@ -46,6 +46,7 @@ struct Expr {
         VarExpr var;
         AssignExpr assign;
     } value;
+    int line;
 };
 
 typedef struct Stmt Stmt;

@@ -1,5 +1,6 @@
 #include "feedback.h"
 #include "scanner.h"
+#include "parser.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -49,6 +50,10 @@ void error(char* message) {
 
 void error_token(Token* token, char* message) {
     feedback(FEEDBACK_ERROR, "%s:%d: error: %s\n", "hello", token->line, message);
+}
+
+void error_expr(Expr* expr, char* message) {
+    feedback(FEEDBACK_ERROR, "%s:%d: error: %s\n", "hello", expr->line, message);
 }
 
 void error_line(int line, char* message) {

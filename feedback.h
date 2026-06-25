@@ -2,6 +2,7 @@
 #define FEEDBACK_H
 
 #include "scanner.h"
+#include "parser.h"
 
 typedef enum {
     FEEDBACK_ERROR,
@@ -15,6 +16,7 @@ typedef enum {
 
 void error(char* message);
 void error_token(Token* token, char* message);
+void error_expr(Expr* expr, char* message);
 void error_line(int line, char* message);
 void success(char* message);
 

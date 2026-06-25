@@ -1,5 +1,5 @@
 var i = 0;
-var target = 100;
+var target = 20;
 while (i < target) {
     i = i + 1;
 

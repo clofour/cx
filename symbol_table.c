@@ -29,7 +29,7 @@ void exit_scope(SymbolTable* symbol_table) {
     symbol_table->symbol_count = symbol_table->symbol_counts[symbol_table->depth];
 }
 
-Symbol symbol_lookup(SymbolTable* symbol_table, char *name)
+Symbol* symbol_lookup(SymbolTable* symbol_table, char *name)
 {
     for (int i = symbol_table->symbol_count - 1; i >= 0; i--)
     {
@@ -37,11 +37,11 @@ Symbol symbol_lookup(SymbolTable* symbol_table, char *name)
 
         if (strcmp(name, variable.name) == 0)
         {
-            return variable;
+            return &variable;
         }
     }
 
-    error("Undefined symbol");
+    return NULL;
 }
 
 int symbol_define(SymbolTable* symbol_table, char *name, ValueType type)

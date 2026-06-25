@@ -14,7 +14,7 @@ static char* keyword_lookup(TokenType type) {
         }
     }
 
-    error("Unrecognized keyword.");
+    return NULL;
 }
 
 void print_offset(int depth) {
@@ -51,7 +51,14 @@ void print_token(int depth, Token* token) {
         case TOKEN_LESS: printf("<"); break;
         case TOKEN_LESS_EQUAL: printf("<="); break;
         case TOKEN_NONE: error_token(token, "Unrecognized token."); break;
-        default: printf("%s", keyword_lookup(type)); break;
+        default:
+            char* keyword = keyword_lookup(type);
+            if (keyword != NULL) {
+                printf("%s", keyword_lookup(type));
+            } else {
+                error_token(token, "Unrecognized keyword.");
+            }
+            break;
     }
 
    printf("\n");

@@ -9,6 +9,19 @@
 #include <stdarg.h>
 #include <stdbool.h>
 
+static Symbol* lookup_symbol_token(Compiler* compiler, Token* token) {
+    if (token->type != TOKEN_IDENTIFIER) {
+        error_token(token, "Unexpected token type");
+    }
+
+    Symbol* symbol = symbol_lookup(compiler->symbol_table, token->value.identifier_value);
+    if (symbol != NULL) {
+        return symbol;
+    } else {
+        error_token(token, "Unrecognized symbol.");
+    }
+}
+
 static bool compare(TokenType reference, int count, ...) {
     va_list args;
     va_start(args, count);
@@ -65,11 +78,10 @@ ValueType compile_token(Compiler *compiler, Token *token)
     switch (type)
     {
         case TOKEN_IDENTIFIER: {
-            char *identifier_value = token->value.identifier_value;
-            Symbol variable = symbol_lookup(compiler->symbol_table, identifier_value);
+            Symbol* variable = lookup_symbol_token(compiler, token);
 
-            emit_inst(compiler->text, "mov rax, [rbp-%d]", variable.offset);
-            return variable.type;
+            emit_inst(compiler->text, "mov rax, [rbp-%d]", variable->offset);
+            return variable->type;
         }
 
         case TOKEN_STRING: {
@@ -120,9 +132,8 @@ ValueType compile_expr(Compiler *compiler, Expr *expr_pointer)
 
             ValueType value = compile_expr(compiler, assign_expr.value);
 
-            char *variable_name = assign_expr.name->value.identifier_value;
-            Symbol variable = symbol_lookup(compiler->symbol_table, variable_name);
-            emit_inst(compiler->text, "mov [rbp-%d], rax", variable.offset);
+            Symbol* variable = lookup_symbol_token(compiler, assign_expr.name);
+            emit_inst(compiler->text, "mov [rbp-%d], rax", variable->offset);
 
             return VALUE_NONE;
         }
@@ -136,14 +147,15 @@ ValueType compile_expr(Compiler *compiler, Expr *expr_pointer)
             ValueType left_value = compile_expr(compiler, binary_expr.leftExpr);
             emit_inst(compiler->text, "pop rcx");
 
-            TokenType operator = binary_expr.operator->type;
+            Token* operator = binary_expr.operator;
+            TokenType operator_type = operator->type;
 
-            if (compare(operator, 5, TOKEN_PLUS, TOKEN_MINUS, TOKEN_STAR, TOKEN_SLASH, TOKEN_MODULO)) {
+            if (compare(operator_type, 5, TOKEN_PLUS, TOKEN_MINUS, TOKEN_STAR, TOKEN_SLASH, TOKEN_MODULO)) {
                 if (!(right_value == VALUE_NUMBER && left_value == VALUE_NUMBER)) {
-                    error("Incorrect types for arithmetic binary operation.");
+                    error_token(operator, "Incorrect types for arithmetic binary operation.");
                 }
 
-                switch (operator)
+                switch (operator_type)
                 {
                     case TOKEN_PLUS:
                         emit_inst(compiler->text, "add rax, rcx");
@@ -168,10 +180,10 @@ ValueType compile_expr(Compiler *compiler, Expr *expr_pointer)
                 return VALUE_NUMBER;
             }
 
-            if (compare(operator, 6, TOKEN_EQUAL_EQUAL, TOKEN_BANG_EQUAL, TOKEN_LESS, TOKEN_LESS_EQUAL, TOKEN_GREATER, TOKEN_GREATER_EQUAL)) {
+            if (compare(operator_type, 6, TOKEN_EQUAL_EQUAL, TOKEN_BANG_EQUAL, TOKEN_LESS, TOKEN_LESS_EQUAL, TOKEN_GREATER, TOKEN_GREATER_EQUAL)) {
                 emit_inst(compiler->text, "cmp rax, rcx");
                 
-                switch (operator)
+                switch (operator_type)
                 {
                     case TOKEN_EQUAL_EQUAL:
                         emit_inst(compiler->text, "sete al");
@@ -198,7 +210,7 @@ ValueType compile_expr(Compiler *compiler, Expr *expr_pointer)
                 return VALUE_BOOL;
             }
 
-            error("Unexpected operator");
+            error_token(operator, "Unexpected operator.");
             break;
         }
 
@@ -269,7 +281,7 @@ void compile_stmt(Compiler *compiler, Stmt *stmt_pointer)
                     data_index = emit_data(compiler, "%d");
                     break;
                 case VALUE_NONE:
-                    error("Unrecognized value");
+                    error_expr(stmt_print.expr, "Unrecognized value.");
                     break;
             }
             emit_inst(compiler->text, "lea rcx, [dat%d]", data_index);

@@ -91,6 +91,7 @@ static Stmt* create_stmt_var(Parser* parser, Token* name, Expr* expr) {
 
 static Expr* create_expr(Parser* parser) {
     Expr expr = {0};
+    expr.line = get_line(parser);
     parser->expressions[parser->expressions_length++] = expr;
     return &parser->expressions[parser->expressions_length - 1];
 }
@@ -208,6 +209,10 @@ static Token* consume(Parser* parser, TokenType type, char* message) {
     return NULL;
 }
 
+static int get_line(Parser* parser) {
+    return previous(parser)->line;
+}
+
 static Expr* expression(Parser* parser);
 static Expr* equality(Parser* parser);
 static Expr* comparison(Parser* parser);
@@ -231,7 +236,7 @@ static Expr* primary(Parser* parser) {
         return expr;
     }
 
-    error("Expected expression.");
+    error_line(get_line(parser), "Expected expression.");
 }
 
 static Expr* unary(Parser* parser) {
