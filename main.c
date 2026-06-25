@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
     shared_data.reporter = &reporter;
 
     start_stage("reader");
-    Source source = source_create(shared_data);
+    Source source = source_create();
     file_read(&shared_data, &source, input_path);
     end_stage();
 
