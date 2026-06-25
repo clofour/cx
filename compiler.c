@@ -141,6 +141,10 @@ ValueType compile_expr(Compiler *compiler, Expr *expr_pointer)
             TokenType operator = binary_expr.operator->type;
 
             if (compare(operator, 5, TOKEN_PLUS, TOKEN_MINUS, TOKEN_STAR, TOKEN_SLASH, TOKEN_MODULO)) {
+                if (!(right_value == VALUE_NUMBER && left_value == VALUE_NUMBER)) {
+                    error("Incorrect types for arithmetic binary operation.");
+                }
+
                 switch (operator)
                 {
                     case TOKEN_PLUS:
@@ -163,7 +167,7 @@ ValueType compile_expr(Compiler *compiler, Expr *expr_pointer)
 
                 }
 
-                return right_value == left_value && right_value;
+                return VALUE_NUMBER;
             }
 
             if (compare(operator, 6, TOKEN_EQUAL_EQUAL, TOKEN_BANG_EQUAL, TOKEN_LESS, TOKEN_LESS_EQUAL, TOKEN_GREATER, TOKEN_GREATER_EQUAL)) {
