@@ -90,15 +90,13 @@ ValueType compile_token(Compiler *compiler, Token *token)
             return VALUE_NUMBER;
         }
 
-        case TOKEN_NONE: {
+        case TOKEN_NONE:
+        default:
+        {
             error_token(token, "Unrecognized token.");
             break;
         }
 
-        default: {
-            printf("TBD");
-            break;
-        }
     }
 }
 
