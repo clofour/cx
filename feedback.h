@@ -4,6 +4,10 @@
 #include "scanner.h"
 
 typedef enum {
+    FEEDBACK_ERROR,
+} FeedbackType;
+
+typedef enum {
     COLOR_RED,
 } Color;
 
