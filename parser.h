@@ -17,34 +17,34 @@ typedef struct {
     Expr* left_expr;
     Token* operator;
     Expr* right_expr;
-} BinaryExpr;
+} ExprBinary;
 
 typedef struct {
     Token* operator;
     Expr* expr;
-} UnaryExpr;
+} ExprUnary;
 
 typedef struct {
     Token* name;
     Expr* value;
-} AssignExpr;
+} ExprAssign;
 
 typedef struct {
     Token* value;
-} PrimaryExpr;
+} ExprPrimary;
 
 typedef struct {
     Token* name;
-} VarExpr;
+} ExprVar;
 
 struct Expr {
     ExprType type;
     union {
-        BinaryExpr binary;
-        UnaryExpr unary;
-        PrimaryExpr primary;
-        VarExpr var;
-        AssignExpr assign;
+        ExprBinary binary;
+        ExprUnary unary;
+        ExprPrimary primary;
+        ExprVar var;
+        ExprAssign assign;
     } value;
     int line;
 };

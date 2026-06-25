@@ -89,73 +89,73 @@ static Stmt* create_stmt_var(Parser* parser, Token* name, Expr* expr) {
     return stmt;
 }
 
-static Expr* create_expr(Parser* parser) {
+static Expr* expr_create(Parser* parser) {
     Expr expr = {0};
     expr.line = get_line(parser);
     parser->expressions[parser->expressions_length++] = expr;
     return &parser->expressions[parser->expressions_length - 1];
 }
 
-static Expr* create_var_expr(Parser* parser, Token* name) {
-    Expr* expr = create_expr(parser);
+static Expr* expr_var_create(Parser* parser, Token* name) {
+    Expr* expr = expr_create(parser);
 
     expr->type = EXPR_VAR;
 
-    VarExpr var_expr;
-    var_expr.name = name;
-    expr->value.var = var_expr;
+    ExprVar expr_var;
+    expr_var.name = name;
+    expr->value.var = expr_var;
 
     return expr;
 }
 
-static Expr* create_primary_expr(Parser* parser, Token* value) {
-    Expr* expr = create_expr(parser);
+static Expr* expr_primary_create(Parser* parser, Token* value) {
+    Expr* expr = expr_create(parser);
 
     expr->type = EXPR_PRIMARY;
 
-    PrimaryExpr primary_expr;
-    primary_expr.value = value;
-    expr->value.primary = primary_expr;
+    ExprPrimary expr_primary;
+    expr_primary.value = value;
+    expr->value.primary = expr_primary;
 
     return expr;
 }
 
-static Expr* create_assign_expr(Parser* parser, Token* name, Expr* value) {
-    Expr* expr = create_expr(parser);
+static Expr* expr_assign_create(Parser* parser, Token* name, Expr* value) {
+    Expr* expr = expr_create(parser);
 
     expr->type = EXPR_ASSIGN;
 
-    AssignExpr assign_expr;
-    assign_expr.name = name;
-    assign_expr.value = value;
-    expr->value.assign = assign_expr;
+    ExprAssign expr_assign;
+    expr_assign.name = name;
+    expr_assign.value = value;
+    expr->value.assign = expr_assign;
 
     return expr;
 }
 
-static Expr* create_unary_expr(Parser* parser, Token* operator, Expr* expression) {
-    Expr* expr = create_expr(parser);
+static Expr* expr_unary_create(Parser* parser, Token* operator, Expr* expression) {
+    Expr* expr = expr_create(parser);
 
     expr->type = EXPR_UNARY;
 
-    UnaryExpr unary_expr;
-    unary_expr.operator = operator;
-    unary_expr.expr = expression;
-    expr->value.unary = unary_expr;
+    ExprUnary expr_unary;
+    expr_unary.operator = operator;
+    expr_unary.expr = expression;
+    expr->value.unary = expr_unary;
 
     return expr;
 }
 
-static Expr* create_binary_expr(Parser* parser, Expr* left_expr, Token* operator, Expr* right_expr) {
-    Expr* expr = create_expr(parser);
+static Expr* expr_binary_create(Parser* parser, Expr* left_expr, Token* operator, Expr* right_expr) {
+    Expr* expr = expr_create(parser);
 
     expr->type = EXPR_BINARY;
 
-    BinaryExpr binary_expr;
-    binary_expr.left_expr = left_expr;
-    binary_expr.operator = operator;
-    binary_expr.right_expr = right_expr;
-    expr->value.binary = binary_expr;
+    ExprBinary expr_binary;
+    expr_binary.left_expr = left_expr;
+    expr_binary.operator = operator;
+    expr_binary.right_expr = right_expr;
+    expr->value.binary = expr_binary;
 
     return expr;
 }
@@ -223,11 +223,11 @@ static Expr* primary(Parser* parser);
 
 static Expr* primary(Parser* parser) {
     if (match(parser, 6, TOKEN_FALSE, TOKEN_TRUE, TOKEN_NULL, TOKEN_NUMBER, TOKEN_STRING)) {
-        return create_primary_expr(parser, previous(parser));
+        return expr_primary_create(parser, previous(parser));
     }
 
     if (match(parser, 1, TOKEN_IDENTIFIER)) {
-        return create_var_expr(parser, previous(parser));
+        return expr_var_create(parser, previous(parser));
     }
 
     if (match(parser, 1, TOKEN_LEFT_PARENTHESIS)) {
@@ -243,7 +243,7 @@ static Expr* unary(Parser* parser) {
     if (match(parser, 2, TOKEN_BANG, TOKEN_MINUS)) {
         Token* operator = previous(parser);
         Expr* expr = unary(parser);
-        return create_unary_expr(parser, operator, expr);
+        return expr_unary_create(parser, operator, expr);
     }
 
     return primary(parser);
@@ -255,7 +255,7 @@ static Expr* factor(Parser* parser) {
     while (match(parser, 3, TOKEN_SLASH, TOKEN_MODULO, TOKEN_STAR)) {
         Token* operator = previous(parser);
         Expr* right = unary(parser);
-        expr = create_binary_expr(parser, expr, operator, right);
+        expr = expr_binary_create(parser, expr, operator, right);
     }
 
     return expr;
@@ -267,7 +267,7 @@ static Expr* term(Parser* parser) {
     while (match(parser, 2, TOKEN_MINUS, TOKEN_PLUS)) {
         Token* operator = previous(parser);
         Expr* right = factor(parser);
-        expr = create_binary_expr(parser, expr, operator, right);
+        expr = expr_binary_create(parser, expr, operator, right);
     }
 
     return expr;
@@ -279,7 +279,7 @@ static Expr* comparison(Parser* parser) {
     while (match(parser, 4, TOKEN_GREATER, TOKEN_GREATER_EQUAL, TOKEN_LESS, TOKEN_LESS_EQUAL)) {
         Token* operator = previous(parser);
         Expr* right = term(parser);
-        expr = create_binary_expr(parser, expr, operator, right);
+        expr = expr_binary_create(parser, expr, operator, right);
     }
 
     return expr;
@@ -291,7 +291,7 @@ static Expr* equality(Parser* parser) {
     while (match(parser, 2, TOKEN_BANG_EQUAL, TOKEN_EQUAL_EQUAL)) {
         Token* operator = previous(parser);
         Expr* right = comparison(parser);
-        expr = create_binary_expr(parser, expr, operator, right);
+        expr = expr_binary_create(parser, expr, operator, right);
     }
 
     return expr;
@@ -305,9 +305,9 @@ static Expr* assignment(Parser* parser) {
         Expr* value = assignment(parser);
 
         if (expr->type == EXPR_VAR) {
-            VarExpr var_expr = expr->value.var;
-            Token* name = var_expr.name;
-            return create_assign_expr(parser, name, value);
+            ExprVar expr_var = expr->value.var;
+            Token* name = expr_var.name;
+            return expr_assign_create(parser, name, value);
         }
 
         error_token(parser->shared_data->reporter, equal_sign, "Invalid assignment target.");

@@ -125,19 +125,19 @@ ValueType compile_expr(Compiler *compiler, Expr *expr_pointer)
     {
         case EXPR_VAR:
         {
-            VarExpr var_expr = expr.value.var;
+            ExprVar expr_var = expr.value.var;
 
-            return compile_token(compiler, var_expr.name);
+            return compile_token(compiler, expr_var.name);
         }
 
         case EXPR_ASSIGN:
         {
 
-            AssignExpr assign_expr = expr.value.assign;
+            ExprAssign expr_assign = expr.value.assign;
 
-            ValueType value = compile_expr(compiler, assign_expr.value);
+            ValueType value = compile_expr(compiler, expr_assign.value);
 
-            Symbol* variable = lookup_symbol_token(compiler, assign_expr.name);
+            Symbol* variable = lookup_symbol_token(compiler, expr_assign.name);
             emit_inst(compiler->text, "mov [rbp-%d], rax", variable->offset);
 
             return VALUE_NONE;
@@ -145,14 +145,14 @@ ValueType compile_expr(Compiler *compiler, Expr *expr_pointer)
 
         case EXPR_BINARY:
         {
-            BinaryExpr binary_expr = expr.value.binary;
+            ExprBinary expr_binary = expr.value.binary;
 
-            ValueType right_value = compile_expr(compiler, binary_expr.right_expr);
+            ValueType right_value = compile_expr(compiler, expr_binary.right_expr);
             emit_inst(compiler->text, "push rax");
-            ValueType left_value = compile_expr(compiler, binary_expr.left_expr);
+            ValueType left_value = compile_expr(compiler, expr_binary.left_expr);
             emit_inst(compiler->text, "pop rcx");
 
-            Token* operator = binary_expr.operator;
+            Token* operator = expr_binary.operator;
             TokenType operator_type = operator->type;
 
             if (compare(operator_type, 5, TOKEN_PLUS, TOKEN_MINUS, TOKEN_STAR, TOKEN_SLASH, TOKEN_MODULO)) {
@@ -221,11 +221,11 @@ ValueType compile_expr(Compiler *compiler, Expr *expr_pointer)
 
         case EXPR_UNARY:
         {
-            UnaryExpr unary_expr = expr.value.unary;
+            ExprUnary expr_unary = expr.value.unary;
 
-            compile_expr(compiler, unary_expr.expr);
+            compile_expr(compiler, expr_unary.expr);
 
-            switch (unary_expr.operator->type) {
+            switch (expr_unary.operator->type) {
                 case TOKEN_BANG: {
                     emit_inst(compiler->text, "cmp rax, 0");
                     emit_inst(compiler->text, "sete al");
@@ -245,9 +245,9 @@ ValueType compile_expr(Compiler *compiler, Expr *expr_pointer)
 
         case EXPR_PRIMARY:
         {
-            PrimaryExpr primary_expr = expr.value.primary;
+            ExprPrimary expr_primary = expr.value.primary;
 
-            return compile_token(compiler, primary_expr.value);
+            return compile_token(compiler, expr_primary.value);
         }
     }
 }

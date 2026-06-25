@@ -69,42 +69,42 @@ void print_expr(Printer* printer, int depth, Expr* expr_pointer) {
 
     switch (expr.type) {
         case EXPR_VAR:
-            VarExpr var_expr = expr.value.var;
+            ExprVar expr_var = expr.value.var;
 
-            print_token(printer, depth, var_expr.name);
+            print_token(printer, depth, expr_var.name);
 
             return;
 
         case EXPR_ASSIGN:
-            AssignExpr assign_expr = expr.value.assign;
+            ExprAssign expr_assign = expr.value.assign;
 
-            print_token(printer, depth, assign_expr.name);
-            print_expr(printer, depth + 1, assign_expr.value);
+            print_token(printer, depth, expr_assign.name);
+            print_expr(printer, depth + 1, expr_assign.value);
 
             return;
 
         case EXPR_BINARY:
-            BinaryExpr binary_expr = expr.value.binary;
+            ExprBinary expr_binary = expr.value.binary;
 
-            print_token(printer, depth, binary_expr.operator);
+            print_token(printer, depth, expr_binary.operator);
 
-            print_expr(printer, depth + 1, binary_expr.left_expr);
-            print_expr(printer, depth + 1, binary_expr.right_expr);
+            print_expr(printer, depth + 1, expr_binary.left_expr);
+            print_expr(printer, depth + 1, expr_binary.right_expr);
 
             return;
 
         case EXPR_UNARY:
-            UnaryExpr unary_expr = expr.value.unary;
+            ExprUnary expr_unary = expr.value.unary;
 
-            print_token(printer, depth, unary_expr.operator);
-            print_expr(printer, depth + 1, unary_expr.expr);
+            print_token(printer, depth, expr_unary.operator);
+            print_expr(printer, depth + 1, expr_unary.expr);
             
             return;
 
         case EXPR_PRIMARY:
-            PrimaryExpr primary_expr = expr.value.primary;
+            ExprPrimary expr_primary = expr.value.primary;
 
-            print_token(printer, depth, primary_expr.value);
+            print_token(printer, depth, expr_primary.value);
             return;
     }
 }
