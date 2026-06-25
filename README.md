@@ -30,15 +30,15 @@ Afterwards, you can optionally assemble the assembly files into portable executa
 ```ebnf
 program = { declaration }, EOF;
 
-declaration = varDecl | statement;
-varDecl = "var", IDENTIFIER, [ "=", expression ], ";";
+declaration = declaration_var | statement;
+declaration_var = "var", IDENTIFIER, [ "=", expression ], ";";
 
-statement = exprStmt | ifStmt | whileStmt | printStmt | block;
+statement = stmt_expr | stmt_cond | stmt_loop | stmt_print | block;
 block = "{", { declaration }, "}";
-exprStmt = expression, ";";
-printStmt = "print", expression, ";";
-ifStmt = "if", "(", expression, ")", statement, [ "else", statement ];
-whileStmt = "while", "(", expression, ")", statement;
+stmt_expr = expression, ";";
+stmt_print = "print", expression, ";";
+stmt_cond = "if", "(", expression, ")", statement, [ "else", statement ];
+stmt_loop = "while", "(", expression, ")", statement;
 
 expression = equality;
 equality = comparison, { ("!=" | "=="), comparison };
