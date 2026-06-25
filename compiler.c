@@ -282,13 +282,25 @@ void compile_stmt(Compiler *compiler, Stmt *stmt_pointer)
         {
             StmtCond stmt_cond = stmt.value.cond;
 
+            bool has_else = stmt_cond.else_body != NULL;
+
+            int else_label_index = allocate_label(compiler);
             int end_label_index = allocate_label(compiler);
 
             compile_expr(compiler, stmt_cond.condition);
             emit_inst(compiler->text, "cmp rax, 0");
-            emit_inst(compiler->text, "je end%d", end_label_index);
+            if (has_else) {
+                emit_inst(compiler->text, "je else%d", else_label_index);
+            } else {
+                emit_inst(compiler->text, "je end%d", end_label_index);
+            }
             
-            compile_stmt(compiler, stmt_cond.body);
+            compile_stmt(compiler, stmt_cond.then_body);
+            if (has_else) {
+                emit_inst(compiler->text, "jmp end%d", end_label_index);
+                emit_label(compiler, else_label_index, "else");
+                compile_stmt(compiler, stmt_cond.else_body);
+            }
             emit_label(compiler, end_label_index, "end");
 
             break;

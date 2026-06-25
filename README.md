@@ -27,7 +27,7 @@ statement = exprStmt | ifStmt | whileStmt | printStmt | block;
 block = "{", { declaration }, "}";
 exprStmt = expression, ";";
 printStmt = "print", expression, ";";
-ifStmt = "if", "(", expression, ")", statement;
+ifStmt = "if", "(", expression, ")", statement, [ "else", statement ];
 whileStmt = "while", "(", expression, ")", statement;
 
 expression = equality;

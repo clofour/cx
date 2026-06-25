@@ -66,7 +66,8 @@ typedef struct {
 
 typedef struct {
     Expr* condition;
-    Stmt* body;
+    Stmt* then_body;
+    Stmt* else_body;
 } StmtCond;
 
 typedef struct {

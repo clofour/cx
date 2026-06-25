@@ -36,14 +36,15 @@ static Stmt* create_stmt_print(Parser* parser, Expr* expr) {
     return stmt;
 }
 
-static Stmt* create_stmt_if(Parser* parser, Expr* condition, Stmt* body) {
+static Stmt* create_stmt_if(Parser* parser, Expr* condition, Stmt* then_body, Stmt* else_body) {
     Stmt* stmt = create_stmt(parser);
     
     stmt->type = STMT_COND;
 
     StmtCond stmtCond;
     stmtCond.condition = condition;
-    stmtCond.body = body;
+    stmtCond.then_body = then_body;
+    stmtCond.else_body = else_body;
     stmt->value.cond = stmtCond;
 
     return stmt;
@@ -335,9 +336,14 @@ static Stmt* if_statement(Parser* parser) {
     consume(parser, TOKEN_LEFT_PARENTHESIS, "'(' expected after conditional.");
     Expr* condition = expression(parser);
     consume(parser, TOKEN_RIGHT_PARENTHESIS, "')' expected after conditional.");
-    Stmt* body = statement(parser);
+    Stmt* then_body = statement(parser);
 
-    return create_stmt_if(parser, condition, body);
+    Stmt* else_body;
+    if (match(parser, 1, TOKEN_ELSE)) {
+        else_body = statement;
+    }
+
+    return create_stmt_if(parser, condition, then_body, else_body);
 }
 
 static Stmt* while_statement(Parser* parser) {
