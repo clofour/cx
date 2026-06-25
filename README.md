@@ -49,6 +49,14 @@ unary = ("!" | "-"), unary | primary;
 primary = NUMBER | STRING | "true" | "false" | "nil" | IDENTIFIER | "(", expression, ")";
 ```
 
+#### Comments
+
+Comments are marked with two slashes (`//`).
+
+```javascript
+print 1; // Hello!
+```
+
 #### Print
 
 `print` is the only implementation of IO in cx. It can be used to display the results of operations.
@@ -56,9 +64,22 @@ primary = NUMBER | STRING | "true" | "false" | "nil" | IDENTIFIER | "(", express
 print "Hello World!";
 ```
 
-#### Arithmetic
+#### Unary operators
 
-Five arithmetic operations are supported in cx:
+Unary operators manipulate a single operand.
+| Symbol | Operation |
+|---|---|
+|!|Logical negation|
+|-|Arithmetic negation|
+
+```javascript
+print !true;
+print -1;
+```
+
+#### Arithmetic operators
+
+Arithmetic operators can be used to manipulate values.
 | Symbol | Operation |
 |---|---|
 |+|Addition|
@@ -69,6 +90,31 @@ Five arithmetic operations are supported in cx:
 
 ```javascript
 print 1 + 2 - 3 * 4 / 5 % 6;
+```
+
+#### Comparison operators
+
+Comparison operators can be used to compare two values and evaluate to booleans. 
+| Symbol | Operation |
+|---|---|
+|==|Equal to|
+|!=|Not equal to|
+|>|Greater than|
+|>=|Greater than or equal to|
+|<|Lesser than|
+|<=|Lesser than or equal to|
+
+```javascript
+var x = 1;
+var y = 1;
+
+if (x == y) print true;
+if (x != y) print true;
+if (x > y) print true;
+if (x < y) print true;
+if (x >= y) print true;
+if (x < y) print true;
+if (x <= y) print true;
 ```
 
 #### Variables
@@ -115,6 +161,14 @@ if (x > y) {
 }
 
 print x + y;
+```
+```javascript
+var x = 1;
+if (x > 2) {
+    x = x - 1;
+} else {
+    print x;
+}
 ```
 
 #### Loop Statements
