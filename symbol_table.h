@@ -23,8 +23,8 @@ typedef struct {
 
 SymbolTable* symbol_table_create();
 void symbol_table_free(SymbolTable* symbol_table);
-void scope_enter(SymbolTable* symbol_table);
-void scope_exit(SymbolTable* symbol_table);
+void symbol_table_scope_enter(SymbolTable* symbol_table);
+void symbol_table_scope_exit(SymbolTable* symbol_table);
 Symbol* symbol_lookup(SymbolTable* symbol_table, char *name);
 int symbol_define(SymbolTable* symbol_table, char *name, ValueType type);
 

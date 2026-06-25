@@ -18,12 +18,12 @@ void symbol_table_free(SymbolTable* symbol_table) {
     free(symbol_table);
 }
 
-void scope_enter(SymbolTable* symbol_table) {
+void symbol_table_scope_enter(SymbolTable* symbol_table) {
     symbol_table->symbol_counts[symbol_table->depth] = symbol_table->symbol_count;
     symbol_table->depth++;
 }
 
-void scope_exit(SymbolTable* symbol_table) {
+void symbol_table_scope_exit(SymbolTable* symbol_table) {
     symbol_table->depth--;
     symbol_table->symbol_count = symbol_table->symbol_counts[symbol_table->depth];
 }

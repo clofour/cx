@@ -347,12 +347,12 @@ void compile_stmt(Compiler *compiler, Stmt *stmt_pointer)
         {
             StmtBlock stmt_block = stmt.value.block;
 
-            scope_enter(compiler->symbol_table);
+            symbol_table_scope_enter(compiler->symbol_table);
             for (int i = 0; i < stmt_block.length; i++)
             {
                 compile_stmt(compiler, stmt_block.statements[i]);
             }
-            scope_exit(compiler->symbol_table);
+            symbol_table_symbol_table_scope_exit(compiler->symbol_table);
 
             break;
         }
