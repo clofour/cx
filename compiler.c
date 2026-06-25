@@ -42,7 +42,7 @@ static int allocate_label(Compiler* compiler) {
 }
 
 void emit(DynamicBuffer* dynamic_buffer, char* string, int length) {
-    append_dynamic_buffer(dynamic_buffer, string, length);
+    dynamic_buffer_append(dynamic_buffer, string, length);
 }
 
 void emit_inst(DynamicBuffer *dynamic_buffer, char *format, ...)
@@ -411,8 +411,8 @@ Compiler compiler_create(SharedData* shared_data, AST ast, char *path) {
     compiler.shared_data = shared_data;
     compiler.ast = ast;
     compiler.path = path;
-    compiler.data = create_dynamic_buffer(100);
-    compiler.text = create_dynamic_buffer(100);
+    compiler.data = dynamic_buffer_create(100);
+    compiler.text = dynamic_buffer_create(100);
     compiler.symbol_table = create_symbol_table();
     compiler.unique_counter = 0;
 
@@ -420,8 +420,8 @@ Compiler compiler_create(SharedData* shared_data, AST ast, char *path) {
 }
 
 void compiler_free(Compiler* compiler) {
-    free_dynamic_buffer(compiler->data);
-    free_dynamic_buffer(compiler->text);
+    dynamic_buffer_free(compiler->data);
+    dynamic_buffer_free(compiler->text);
     free_symbol_table(compiler->symbol_table);
 }
 
