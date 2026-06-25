@@ -21,7 +21,7 @@ Afterwards, you can optionally assemble the assembly files into portable executa
 #### Print
 
 `print` is the only implementation of IO in cx. It can be used to display the results of operations.
-```
+```javascript
 print "Hello World!";
 ```
 
@@ -36,7 +36,7 @@ Five arithmetic operations are supported in cx:
 |/|Division|
 |%|Modulo|
 
-```
+```javascript
 print 1 + 2 - 3 * 4 / 5 % 6;
 ```
 
@@ -44,11 +44,11 @@ print 1 + 2 - 3 * 4 / 5 % 6;
 
 Variables can be used for storing the results of operations, allowing for more complex programs. The contents of variables can be changed after initialization via assignment. Variable names can be composed of alphanumeric characters, except for the first letter, which must always be a letter.
 
-```
+```javascript
 var x = 1;
 print x;
 ```
-```
+```javascript
 var x = 1;
 x = 2;
 print x;
@@ -57,7 +57,7 @@ print x;
 #### Blocks
 
 Blocks can be used to enter a new scope, allowing for variables to be redefined. They are commonly used in conjunction with conditional statements and loop statements as they allow for multiple statements.
-```
+```javascript
 var x = 1;
 
 while (x < 10) {
@@ -69,12 +69,12 @@ while (x < 10) {
 #### Conditional Statements
 
 Conditional statements can be used 
-```
+```javascript
 var x = 1;
 if (x > 1) x = 2;
 print x;
 ```
-```
+```javascript
 var x = 1;
 var y = 2;
 
@@ -89,11 +89,11 @@ print x + y;
 #### Loop Statements
 
 Loop statements can be used to repeat a given operation until a condition is no longer met.
-```
+```javascript
 var x = 1;
 while (x < 10) x = x + 1;
 ```
-```
+```javascript
 var x = 1;
 while (x < 10) {
     x = x + 1;
