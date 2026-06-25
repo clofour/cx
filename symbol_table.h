@@ -22,7 +22,7 @@ typedef struct {
 } SymbolTable;
 
 SymbolTable* create_symbol_table();
-SymbolTable* free_symbol_table(SymbolTable* symbol_table);
+void free_symbol_table(SymbolTable* symbol_table);
 void enter_scope(SymbolTable* symbol_table);
 void exit_scope(SymbolTable* symbol_table);
 Symbol symbol_lookup(SymbolTable* symbol_table, char *name);
