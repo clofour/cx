@@ -28,7 +28,7 @@ Afterwards, you can optionally assemble the assembly files into portable executa
 1. Assemble the program by running `nasm -f win64 <asm_output_file> -o <obj_output_file>`.
 2. Link necessary libraries by running `link <obj_output_file> /entry:main /subsystem:console /out:<exe_output_file> kernel32.lib msvcrt.lib ucrt.lib legacy_stdio_definitions.lib`.
 
-You can use the sample files in the `samples/` directory for testing if you wish. `fizzbuzz.cx` is the most comprehensive sample, utilizing most language features.
+You can use the sample files in the `samples/` directory for testing if you wish. `fizzbuzz.cx` is the most comprehensive sample, utilizing most language features. To write your own samples, refer to the Knowledge Base.
 
 ## Contributions
 
